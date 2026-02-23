@@ -1,0 +1,14 @@
+=== INICIO DE CORRIDA DISTRIBUIDA ===
+Fecha: 2026-02-23 14:44:04
+=====================================
+[2026-02-23 14:44:04] INFO Servidor escuchando en 127.0.0.1:5000
+[2026-02-23 14:44:39] INFO Cliente conectado 127.0.0.1:61120
+[2026-02-23 14:44:39] EVENTO nodo=quijote oracion=1 pitch=56 velocity=114 texto="En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha mucho tiempo que vivía un hidalgo de los de lanza en astillero, adarga antigua, rocín flaco y galgo corredor"
+[2026-02-23 14:44:40] EVENTO nodo=quijote oracion=2 pitch=127 velocity=118 texto="Una olla de algo más vaca que carnero, salpicón las más noches, duelos y quebrantos los sábados, lentejas los viernes y algún palomino de añadidura los domingos consumían las tres partes de su hacienda"
+[2026-02-23 14:44:40] EVENTO nodo=quijote oracion=3 pitch=21 velocity=127 texto="Tenía en su casa una ama que pasaba de los cuarenta, y una sobrina que no llegaba a los veinte, y un mozo de campo y plaza que así ensillaba el rocín como tomaba la podadera"
+[2026-02-23 14:44:41] EVENTO nodo=quijote oracion=4 pitch=101 velocity=13 texto="Frisaba la edad de nuestro hidalgo con los cincuenta años"
+[2026-02-23 14:44:41] EVENTO nodo=quijote oracion=5 pitch=82 velocity=44 texto="era de complexión recia, seco de carnes, enjuto de rostro, gran madrugador y amigo de la caza"
+[2026-02-23 14:44:41] EVENTO nodo=quijote oracion=6 pitch=98 velocity=74 texto="Quieren decir que tenía el sobrenombre de Quijada o Quesada, que en esto hay alguna diferencia en los autores que de este caso escriben"
+[2026-02-23 14:44:42] EVENTO nodo=quijote oracion=7 pitch=85 velocity=0 texto="Pero esto importa poco a nuestro cuento"
+[2026-02-23 14:44:42] EVENTO nodo=quijote oracion=8 pitch=0 velocity=35 texto="basta que en la narración de él no se salga un punto de la verdad"
+[2026-02-23 14:44:43] INFO Cliente desconectado 127.0.0.1:61120
