@@ -52,8 +52,8 @@ def analizar_texto(texto, nombre_nodo):
     oraciones = tokenizar_oraciones(texto)
     valores_brutos = [cuantificar_oracion(o) for o in oraciones]
     conteos_palabras = [len(tokenizar_palabras(o)) for o in oraciones]
-    pitches = normalizar_lista(valores_brutos)
-    velocities = normalizar_lista(conteos_palabras)
+    notas_midi = normalizar_lista(valores_brutos)
+    intensidades_midi = normalizar_lista(conteos_palabras)
 
     eventos = []
     for i, oracion in enumerate(oraciones, start=1):
@@ -61,8 +61,8 @@ def analizar_texto(texto, nombre_nodo):
             {
                 "nodo": nombre_nodo,
                 "oracion_num": i,
-                "pitch": pitches[i - 1],
-                "velocity": velocities[i - 1],
+                "nota_midi": notas_midi[i - 1],
+                "intensidad_midi": intensidades_midi[i - 1],
                 "texto_original": oracion,
             }
         )
@@ -74,30 +74,54 @@ def analizar_archivo(ruta_archivo, nombre_nodo):
     return analizar_texto(texto, nombre_nodo)
 
 
-def construir_reporte_visibilidad(texto, nombre_nodo):
+def construir_reporte_visibilidad(texto, nombre_nodo, oracion_objetivo=None):
     """Genera una vista detallada del proceso de tokenización y cuantificación."""
     oraciones = tokenizar_oraciones(texto)
     valores_brutos = [cuantificar_oracion(o) for o in oraciones]
     conteos = [len(tokenizar_palabras(o)) for o in oraciones]
-    pitches = normalizar_lista(valores_brutos)
-    velocities = normalizar_lista(conteos)
+    notas_midi = normalizar_lista(valores_brutos)
+    intensidades_midi = normalizar_lista(conteos)
 
     lineas = []
     lineas.append(f"=== REPORTE DE ANÁLISIS [{nombre_nodo}] ===")
-    lineas.append(f"Total de oraciones: {len(oraciones)}")
+    if oracion_objetivo is None:
+        indices = list(range(len(oraciones)))
+    else:
+        indice = int(oracion_objetivo) - 1
+        indices = [indice] if 0 <= indice < len(oraciones) else []
 
-    for i, oracion in enumerate(oraciones, start=1):
+    if not indices:
+        lineas.append(f"Oración {oracion_objetivo} no existe.")
+        return "\n".join(lineas)
+
+    lineas.append(f"Total de oraciones mostradas: {len(indices)}")
+
+    for idx in indices:
+        i = idx + 1
+        oracion = oraciones[idx]
         palabras = tokenizar_palabras(oracion)
         lineas.append(f"\nOración {i}: {oracion}")
-        lineas.append(f"Palabras ({len(palabras)}): {palabras}")
-        lineas.append(f"Valor bruto: {valores_brutos[i - 1]:.2f}")
-        lineas.append(f"Pitch: {pitches[i - 1]} | Velocity: {velocities[i - 1]}")
+        lineas.append(f"Tokenización por palabra ({len(palabras)}):")
+        if not palabras:
+            lineas.append(" idx | token | len | suma_ascii | len*suma_ascii")
+            lineas.append("   - | (sin palabras)")
+        else:
+            lineas.append(" idx | token           | len | suma_ascii | len*suma_ascii")
+            lineas.append("-----+-----------------+-----+------------+---------------")
+            for j, palabra in enumerate(palabras, start=1):
+                ascii_total = suma_ascii(palabra)
+                aporte = len(palabra) * ascii_total
+                lineas.append(f"{j:>4} | {palabra:<15} | {len(palabra):>3} | {ascii_total:>10} | {aporte:>13}")
+        lineas.append(f"Valor bruto: {valores_brutos[idx]:.2f}")
+        lineas.append(
+            f"Nota MIDI: {notas_midi[idx]} | Intensidad MIDI: {intensidades_midi[idx]}"
+        )
 
     return "\n".join(lineas)
 
 
 if __name__ == "__main__":
     base = os.path.dirname(os.path.dirname(__file__))
-    ruta = os.path.join(base, "corpus", "quijote.txt")
+    ruta = os.path.join(base, "texto", "quijote.txt")
     texto = cargar_texto(ruta)
     print(construir_reporte_visibilidad(texto, "quijote"))

@@ -31,8 +31,8 @@ class RegistroCorrida:
             f"[{self._marca_tiempo()}] EVENTO "
             f"nodo={evento.get('nodo')} "
             f"oracion={evento.get('oracion_num')} "
-            f"pitch={evento.get('pitch')} "
-            f"velocity={evento.get('velocity')} "
+            f"nota_midi={evento.get('nota_midi')} "
+            f"intensidad_midi={evento.get('intensidad_midi')} "
             f"texto=\"{evento.get('texto_original', '')}\""
         )
 

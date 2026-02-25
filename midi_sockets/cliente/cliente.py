@@ -50,7 +50,7 @@ class ClienteNodo:
         self.puerto_midi = puerto_midi
 
         base = os.path.dirname(os.path.dirname(__file__))
-        self.ruta_corpus = os.path.join(base, "corpus", f"{nombre_nodo}.txt")
+        self.ruta_corpus = os.path.join(base, "texto", f"{nombre_nodo}.txt")
 
     def _escapar(self, texto):
         return texto.replace("\\", r"\\").replace('"', r'\"').replace("\n", r"\n").replace("\t", r"\t")
@@ -61,8 +61,8 @@ class ClienteNodo:
             "{"
             f'"nodo": "{evento["nodo"]}", '
             f'"oracion_num": {int(evento["oracion_num"])}, '
-            f'"pitch": {int(evento["pitch"])}, '
-            f'"velocity": {int(evento["velocity"])}, '
+            f'"nota_midi": {int(evento["nota_midi"])}, '
+            f'"intensidad_midi": {int(evento["intensidad_midi"])}, '
             f'"texto_original": "{texto}"'
             "}"
         )
@@ -84,16 +84,16 @@ class ClienteNodo:
         detalle = detalle.replace(r"\\", "\\").replace(r'\"', '"').replace(r"\n", "\n")
         return estado, detalle
 
-    def _mostrar_visibilidad(self):
+    def _mostrar_visibilidad(self, oracion_objetivo=None):
         if not self.visibilidad:
             return
         texto = cargar_texto(self.ruta_corpus)
-        print(construir_reporte_visibilidad(texto, self.nombre_nodo))
+        print(construir_reporte_visibilidad(texto, self.nombre_nodo, oracion_objetivo=oracion_objetivo))
         print("=== FIN REPORTE ===\n")
 
     def _reproducir_evento_local(self, puerto, evento):
-        note = int(evento["pitch"])
-        vel = int(evento["velocity"])
+        note = int(evento["nota_midi"])
+        vel = int(evento["intensidad_midi"])
         puerto.send(Message("note_on", note=note, velocity=vel))
         time.sleep(0.18)
         puerto.send(Message("note_off", note=note, velocity=0))
@@ -127,8 +127,8 @@ class ClienteNodo:
             return eventos
         seleccionados = [e for e in eventos if int(e["oracion_num"]) == int(oracion_objetivo)]
         if not seleccionados:
-            print(f"[{self.nombre_nodo}] Oración {oracion_objetivo} no existe. Se enviarán todas.")
-            return eventos
+            print(f"[{self.nombre_nodo}] Oración {oracion_objetivo} no existe. No se enviará nada.")
+            return []
         return seleccionados
 
     def enviar_eventos(self, oracion_objetivo=None):
@@ -137,8 +137,10 @@ class ClienteNodo:
             print(f"[{self.nombre_nodo}] No hay eventos para enviar.")
             return
 
-        self._mostrar_visibilidad()
         eventos_envio = self._seleccionar_eventos(eventos, oracion_objetivo)
+        self._mostrar_visibilidad(oracion_objetivo=oracion_objetivo)
+        if not eventos_envio:
+            return
 
         puerto_local = None
         if self.sonar_local:
@@ -173,7 +175,7 @@ class ClienteNodo:
                         enviados_ok += 1
                         print(
                             f"[{self.nombre_nodo}] OK oración {evento['oracion_num']} "
-                            f"(pitch={evento['pitch']}, velocity={evento['velocity']})"
+                            f"(nota_midi={evento['nota_midi']}, intensidad_midi={evento['intensidad_midi']})"
                         )
                     else:
                         print(f"[{self.nombre_nodo}] ERROR oración {evento['oracion_num']}: {detalle}")
@@ -190,11 +192,6 @@ class ClienteNodo:
                     pass
 
         print(f"[{self.nombre_nodo}] Finalizado: {enviados_ok}/{len(eventos_envio)} confirmados.")
-
-        if enviados_ok > 0 and self.sonar_local and os.isatty(0):
-            reproducir = input("¿Reproducir ahora la(s) oración(es) enviada(s)? [s/N]: ").strip().lower() == "s"
-            if reproducir:
-                self._reproducir_bloque_local(eventos_envio)
 
 
 def _leer_entero_en_rango(mensaje, minimo, maximo, defecto):
@@ -235,11 +232,16 @@ def _menu_interactivo():
     if inst == "7":
         programa = _leer_entero_en_rango("Programa MIDI (0-127): ", 0, 127, 0)
     else:
-        idx = _leer_entero_en_rango("", 1, len(INSTRUMENTOS), 1)
+        try:
+            idx = int(inst) if inst else 1
+        except ValueError:
+            idx = 1
+        if idx < 1 or idx > len(INSTRUMENTOS):
+            idx = 1
         programa = INSTRUMENTOS[idx - 1][0]
 
     activar_sonido = input("¿Activar sonido local MIDI? [s/N]: ").strip().lower() == "s"
-    ver = input("¿Mostrar reporte de tokenización? [S/n]: ").strip().lower() != "n"
+    ver = True
 
     puertos = get_output_names() if activar_sonido else []
     puerto_midi = None
@@ -282,7 +284,7 @@ def main():
         return
 
     nodo = (os.getenv("NODO", "quijote").strip() or "quijote")
-    visibilidad = os.getenv("VISIBILIDAD", "1").strip() == "1"
+    visibilidad = True
     sonar_local = os.getenv("SONAR_LOCAL", "0").strip() == "1"
     programa = int(os.getenv("PROGRAMA_MIDI", "0"))
     oracion_obj = os.getenv("ORACION_OBJETIVO", "").strip()

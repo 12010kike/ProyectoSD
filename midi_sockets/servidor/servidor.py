@@ -52,6 +52,13 @@ class ServidorMidiSockets:
             raise ValueError(f"Falta campo {campo}")
         return int(m.group(1))
 
+    def _campo_entero_alias(self, mensaje, campos):
+        for campo in campos:
+            m = re.search(rf'"{campo}"\s*:\s*(-?\d+)', mensaje)
+            if m:
+                return int(m.group(1))
+        raise ValueError(f"Falta campo {' o '.join(campos)}")
+
     def _parsear_evento(self, mensaje):
         msg = mensaje.strip()
         if not (msg.startswith("{") and msg.endswith("}")):
@@ -60,8 +67,8 @@ class ServidorMidiSockets:
         evento = {
             "nodo": self._campo_texto(msg, "nodo"),
             "oracion_num": self._campo_entero(msg, "oracion_num"),
-            "pitch": self._campo_entero(msg, "pitch"),
-            "velocity": self._campo_entero(msg, "velocity"),
+            "nota_midi": self._campo_entero_alias(msg, ["nota_midi", "pitch"]),
+            "intensidad_midi": self._campo_entero_alias(msg, ["intensidad_midi", "velocity"]),
             "texto_original": self._campo_texto(msg, "texto_original"),
         }
         self._validar(evento)
@@ -72,10 +79,10 @@ class ServidorMidiSockets:
             raise ValueError("nodo no permitido")
         if evento["oracion_num"] < 1:
             raise ValueError("oracion_num inválido")
-        if not (0 <= evento["pitch"] <= 127):
-            raise ValueError("pitch fuera de rango")
-        if not (0 <= evento["velocity"] <= 127):
-            raise ValueError("velocity fuera de rango")
+        if not (0 <= evento["nota_midi"] <= 127):
+            raise ValueError("nota_midi fuera de rango")
+        if not (0 <= evento["intensidad_midi"] <= 127):
+            raise ValueError("intensidad_midi fuera de rango")
 
     def _respuesta(self, estado, detalle=""):
         if detalle:
@@ -91,8 +98,15 @@ class ServidorMidiSockets:
         track = MidiTrack()
         midi.tracks.append(track)
         for e in eventos:
-            track.append(Message("note_on", note=int(e["pitch"]), velocity=int(e["velocity"]), time=0))
-            track.append(Message("note_off", note=int(e["pitch"]), velocity=0, time=240))
+            track.append(
+                Message(
+                    "note_on",
+                    note=int(e["nota_midi"]),
+                    velocity=int(e["intensidad_midi"]),
+                    time=0,
+                )
+            )
+            track.append(Message("note_off", note=int(e["nota_midi"]), velocity=0, time=240))
         midi.save(os.path.join(self.ruta_salida, f"{nodo}.mid"))
 
     def _atender_cliente(self, conexion, direccion):
