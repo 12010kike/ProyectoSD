@@ -14,6 +14,16 @@ try:
 except ImportError:
     from cliente.analizador import analizar_archivo, cargar_texto, construir_reporte_visibilidad
 
+_NOMBRES_NOTA = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+
+
+def _midi_a_note(numero_midi):
+    """Convierte número MIDI (0-127) a objeto Note de mingus."""
+    from mingus.containers import Note
+    nombre = _NOMBRES_NOTA[int(numero_midi) % 12]
+    octava = max(0, int(numero_midi) // 12 - 1)
+    return Note(nombre, octava)
+
 
 HOST = "127.0.0.1"
 PUERTO = 5000
@@ -39,6 +49,8 @@ class ClienteNodo:
         sonar_local=False,
         programa_instrumento=0,
         puerto_midi=None,
+        sonar_fluidsynth=False,
+        ruta_soundfont=None,
     ):
         self.nombre_nodo = nombre_nodo
         self.host = host
@@ -48,9 +60,15 @@ class ClienteNodo:
         self.sonar_local = sonar_local
         self.programa_instrumento = int(max(0, min(127, programa_instrumento)))
         self.puerto_midi = puerto_midi
+        self.sonar_fluidsynth = sonar_fluidsynth
 
         base = os.path.dirname(os.path.dirname(__file__))
         self.ruta_corpus = os.path.join(base, "texto", f"{nombre_nodo}.txt")
+
+        if ruta_soundfont:
+            self.ruta_soundfont = ruta_soundfont
+        else:
+            self.ruta_soundfont = os.path.join(base, "soundfonts", "FluidR3_GM.sf2")
 
     def _escapar(self, texto):
         return texto.replace("\\", r"\\").replace('"', r'\"').replace("\n", r"\n").replace("\t", r"\t")
@@ -122,6 +140,49 @@ class ClienteNodo:
         except Exception as error:
             print(f"[{self.nombre_nodo}] Error al reproducir localmente: {error}")
 
+    def _reproducir_con_fluidsynth(self, eventos):
+        import sys
+        if sys.platform == "darwin":
+            dyld = os.environ.get("DYLD_LIBRARY_PATH", "")
+            for brew_lib in ("/opt/homebrew/lib", "/usr/local/lib"):
+                if os.path.isdir(brew_lib) and brew_lib not in dyld:
+                    os.environ["DYLD_LIBRARY_PATH"] = brew_lib + (":" + dyld if dyld else "")
+                    break
+
+        from mingus.midi import fluidsynth
+
+        if not os.path.isfile(self.ruta_soundfont):
+            print(
+                f"[{self.nombre_nodo}] SoundFont no encontrado: {self.ruta_soundfont}\n"
+                f"  Descarga FluidR3_GM.sf2 y colócalo en midi_sockets/soundfonts/"
+            )
+            return
+
+        driver = "coreaudio" if sys.platform == "darwin" else None
+        if not fluidsynth.init(self.ruta_soundfont, driver=driver):
+            print(f"[{self.nombre_nodo}] No se pudo inicializar FluidSynth.")
+            return
+
+        fluidsynth.set_instrument(1, self.programa_instrumento)
+        print(
+            f"[{self.nombre_nodo}] Reproduciendo {len(eventos)} evento(s) "
+            f"con FluidSynth (instrumento {self.programa_instrumento})..."
+        )
+        for evento in eventos:
+            # Mapear [0,127] → [36,84] solo para reproducción audible (C2–C6)
+            nota_audible = 36 + int(evento["nota_midi"] * 48 / 127)
+            nota = _midi_a_note(nota_audible)
+            vel_raw = int(evento["intensidad_midi"])
+            # Escalar [1,127] → [64,127] para mayor volumen en reproducción
+            vel_playback = (64 + int(vel_raw * 63 / 127)) if vel_raw > 0 else 0
+            silencio = " (silencio)" if vel_playback == 0 else ""
+            texto_corto = str(evento["texto_original"])[:60]
+            print(f"  [{evento['oracion_num']:>3}] {nota.name}{nota.octave} vel={vel_raw}→{vel_playback}{silencio} | {texto_corto}")
+            fluidsynth.play_Note(nota, 1, vel_playback)
+            time.sleep(2.5)
+            fluidsynth.stop_Note(nota, 1)
+            time.sleep(0.3)
+
     def _seleccionar_eventos(self, eventos, oracion_objetivo):
         if oracion_objetivo is None:
             return eventos
@@ -141,6 +202,11 @@ class ClienteNodo:
         self._mostrar_visibilidad(oracion_objetivo=oracion_objetivo)
         if not eventos_envio:
             return
+
+        if self.sonar_fluidsynth:
+            escuchar = input("¿Escuchar la sonorización antes de enviar? [S/n]: ").strip().lower()
+            if escuchar != "n":
+                self._reproducir_con_fluidsynth(eventos_envio)
 
         puerto_local = None
         if self.sonar_local:
@@ -240,8 +306,16 @@ def _menu_interactivo():
             idx = 1
         programa = INSTRUMENTOS[idx - 1][0]
 
-    activar_sonido = input("¿Activar sonido local MIDI? [s/N]: ").strip().lower() == "s"
+    print("\nReproducción local:")
+    print("  m) MIDI local (requiere puerto MIDI físico/virtual)")
+    print("  f) FluidSynth (síntesis por software con SoundFont .sf2)")
+    print("  N) Sin sonido local")
+    modo_sonido = input("Selecciona [m/f/N] (Enter=N): ").strip().lower()
     ver = True
+
+    activar_sonido = modo_sonido == "m"
+    sonar_fluidsynth = modo_sonido == "f"
+    ruta_soundfont = None
 
     puertos = get_output_names() if activar_sonido else []
     puerto_midi = None
@@ -252,11 +326,19 @@ def _menu_interactivo():
         idx_p = _leer_entero_en_rango("Selecciona puerto [1-n] (Enter=1): ", 1, len(puertos), 1)
         puerto_midi = puertos[idx_p - 1]
 
+    if sonar_fluidsynth:
+        base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        sf_defecto = os.path.join(base, "soundfonts", "FluidR3_GM.sf2")
+        entrada = input(f"Ruta al .sf2 (Enter='{sf_defecto}'): ").strip()
+        ruta_soundfont = entrada if entrada else sf_defecto
+
     return {
         "nodo": nodo,
         "oracion_objetivo": oracion_objetivo,
         "programa": programa,
         "sonar_local": activar_sonido,
+        "sonar_fluidsynth": sonar_fluidsynth,
+        "ruta_soundfont": ruta_soundfont,
         "visibilidad": ver,
         "puerto_midi": puerto_midi,
     }
@@ -279,6 +361,8 @@ def main():
             sonar_local=config["sonar_local"],
             programa_instrumento=config["programa"],
             puerto_midi=config["puerto_midi"],
+            sonar_fluidsynth=config["sonar_fluidsynth"],
+            ruta_soundfont=config["ruta_soundfont"],
         )
         cliente.enviar_eventos(oracion_objetivo=config["oracion_objetivo"])
         return
@@ -286,6 +370,7 @@ def main():
     nodo = (os.getenv("NODO", "quijote").strip() or "quijote")
     visibilidad = True
     sonar_local = os.getenv("SONAR_LOCAL", "0").strip() == "1"
+    sonar_fluidsynth = os.getenv("SONAR_FLUIDSYNTH", "0").strip() == "1"
     programa = int(os.getenv("PROGRAMA_MIDI", "0"))
     oracion_obj = os.getenv("ORACION_OBJETIVO", "").strip()
     oracion_objetivo = int(oracion_obj) if oracion_obj.isdigit() else None
@@ -299,6 +384,8 @@ def main():
         sonar_local=sonar_local,
         programa_instrumento=programa,
         puerto_midi=os.getenv("PUERTO_MIDI", "").strip() or None,
+        sonar_fluidsynth=sonar_fluidsynth,
+        ruta_soundfont=os.getenv("RUTA_SOUNDFONT", "").strip() or None,
     )
     cliente.enviar_eventos(oracion_objetivo=oracion_objetivo)
 
