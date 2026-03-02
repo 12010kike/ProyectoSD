@@ -1,11 +1,9 @@
 """
 Punto de entrada principal del proyecto MIDI-Sockets.
-
-Menú simplificado:
-- Cliente con menú interactivo
 """
 
 import os
+import sys
 
 
 def limpiar_pantalla():
@@ -13,8 +11,12 @@ def limpiar_pantalla():
 
 
 def ejecutar_cliente():
+    base = os.path.dirname(os.path.abspath(__file__))
+    if base not in sys.path:
+        sys.path.insert(0, base)
+    from cliente.cliente import main as cliente_main
     print("\nIniciando cliente con menú interactivo...\n")
-    os.system("python3 cliente/cliente.py")
+    cliente_main()
 
 
 def mostrar_menu():

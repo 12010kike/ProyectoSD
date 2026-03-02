@@ -63,3 +63,26 @@ Fecha: 2026-03-02 14:06:54
 [2026-03-02 14:22:47] EVENTO nodo=quijote oracion=7 nota_midi=85 intensidad_midi=0 texto="Pero esto importa poco a nuestro cuento"
 [2026-03-02 14:22:47] EVENTO nodo=quijote oracion=8 nota_midi=0 intensidad_midi=35 texto="basta que en la narración de él no se salga un punto de la verdad"
 [2026-03-02 14:22:47] INFO Cliente desconectado 127.0.0.1:62867
+[2026-03-02 14:27:05] INFO Cliente conectado 127.0.0.1:64016
+[2026-03-02 14:27:05] EVENTO nodo=quijote oracion=1 nota_midi=56 intensidad_midi=114 texto="En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha mucho tiempo que vivía un hidalgo de los de lanza en astillero, adarga antigua, rocín flaco y galgo corredor"
+[2026-03-02 14:27:05] EVENTO nodo=quijote oracion=2 nota_midi=127 intensidad_midi=118 texto="Una olla de algo más vaca que carnero, salpicón las más noches, duelos y quebrantos los sábados, lentejas los viernes y algún palomino de añadidura los domingos consumían las tres partes de su hacienda"
+[2026-03-02 14:27:05] EVENTO nodo=quijote oracion=3 nota_midi=21 intensidad_midi=127 texto="Tenía en su casa una ama que pasaba de los cuarenta, y una sobrina que no llegaba a los veinte, y un mozo de campo y plaza que así ensillaba el rocín como tomaba la podadera"
+[2026-03-02 14:27:06] EVENTO nodo=quijote oracion=4 nota_midi=101 intensidad_midi=13 texto="Frisaba la edad de nuestro hidalgo con los cincuenta años"
+[2026-03-02 14:27:06] EVENTO nodo=quijote oracion=5 nota_midi=82 intensidad_midi=44 texto="era de complexión recia, seco de carnes, enjuto de rostro, gran madrugador y amigo de la caza"
+[2026-03-02 14:27:06] EVENTO nodo=quijote oracion=6 nota_midi=98 intensidad_midi=74 texto="Quieren decir que tenía el sobrenombre de Quijada o Quesada, que en esto hay alguna diferencia en los autores que de este caso escriben"
+[2026-03-02 14:27:07] EVENTO nodo=quijote oracion=7 nota_midi=85 intensidad_midi=0 texto="Pero esto importa poco a nuestro cuento"
+[2026-03-02 14:27:07] EVENTO nodo=quijote oracion=8 nota_midi=0 intensidad_midi=35 texto="basta que en la narración de él no se salga un punto de la verdad"
+[2026-03-02 14:27:07] INFO Cliente desconectado 127.0.0.1:64016
+[2026-03-02 14:27:51] INFO Cliente conectado 127.0.0.1:64213
+[2026-03-02 14:27:51] EVENTO nodo=mio_cid oracion=1 nota_midi=127 intensidad_midi=95 texto="De los sos ojos tan fuertemente llorando, tornaba la cabeza y estábalos catando"
+[2026-03-02 14:27:51] EVENTO nodo=mio_cid oracion=2 nota_midi=114 intensidad_midi=127 texto="Vio puertas abiertas y postigos sin candados, alcándaras vacías y sin pieles y sin mantos"
+[2026-03-02 14:27:52] EVENTO nodo=mio_cid oracion=3 nota_midi=82 intensidad_midi=16 texto="Suspiró mio Cid, ca mucho avía grandes cuidados"
+[2026-03-02 14:27:52] EVENTO nodo=mio_cid oracion=4 nota_midi=6 intensidad_midi=0 texto="Habló mio Cid bien y tan mesurado"
+[2026-03-02 14:27:52] EVENTO nodo=mio_cid oracion=5 nota_midi=0 intensidad_midi=32 texto="gracias a ti, Señor Padre, que estás en alto"
+[2026-03-02 14:27:52] EVENTO nodo=mio_cid oracion=6 nota_midi=44 intensidad_midi=0 texto="Esto me han vuelto mios enemigos malos"
+[2026-03-02 14:27:53] EVENTO nodo=mio_cid oracion=7 nota_midi=94 intensidad_midi=16 texto="Allí piensan de aguijar, allí sueltan las riendas"
+[2026-03-02 14:27:53] EVENTO nodo=mio_cid oracion=8 nota_midi=99 intensidad_midi=127 texto="A la exida de Bivar ovieron la corneja diestra y entrando en Burgos ovieronla siniestra"
+[2026-03-02 14:27:53] EVENTO nodo=mio_cid oracion=9 nota_midi=44 intensidad_midi=32 texto="Meció mio Cid los hombros y engrameó la tiesta"
+[2026-03-02 14:27:53] EVENTO nodo=mio_cid oracion=10 nota_midi=90 intensidad_midi=16 texto="albricia, Álvar Fáñez, ca echados somos de tierra"
+[2026-03-02 14:27:54] EVENTO nodo=mio_cid oracion=11 nota_midi=99 intensidad_midi=0 texto="Mas con gran honra tornaremos a Castilla"
+[2026-03-02 14:27:54] INFO Cliente desconectado 127.0.0.1:64213
