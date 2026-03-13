@@ -103,6 +103,7 @@ class Monitor:
         self._analisis_ejecutado = False
         self._lock_analisis = threading.Lock()
         self.instrumento_por_nodo = {}  # {nodo: gm}  — populado al enviar config
+        self._timer_timeout = None
 
         base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.ruta_log = os.path.join(base, "salida", "log_corrida.txt")
@@ -213,10 +214,25 @@ class Monitor:
                         ejecutar = True
 
             if ejecutar:
+                if self._timer_timeout:
+                    self._timer_timeout.cancel()
                 self._analisis_comparativo()
 
         else:
             print(f"[monitor] DE {remitente}: {mensaje}")
+
+    def _timeout_cb(self):
+        """Fuerza el análisis comparativo si transcurren 60 s sin fin_procesamiento de todos los nodos."""
+        ejecutar = False
+        with self._lock_analisis:
+            if not self._analisis_ejecutado:
+                self._analisis_ejecutado = True
+                ejecutar = True
+        if ejecutar:
+            with self.lock_datos:
+                pendientes = self.nodos_esperados - self.nodos_completados
+            print(f"[monitor] Timeout 60 s: forzando análisis. Nodos sin respuesta: {pendientes}")
+            self._analisis_comparativo()
 
     def _analisis_comparativo(self):
         with self.lock_datos:
@@ -408,6 +424,11 @@ class Monitor:
                 self._enviar_privado(procesador, msg)
 
             print(f"[monitor] Configuración enviada. Esperando {len(asignaciones)} procesador(es)...\n")
+            if self._timer_timeout:
+                self._timer_timeout.cancel()
+            self._timer_timeout = threading.Timer(60.0, self._timeout_cb)
+            self._timer_timeout.daemon = True
+            self._timer_timeout.start()
 
         if self.sock:
             try:

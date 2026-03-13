@@ -117,7 +117,12 @@ class ServidorMensajeria:
     def iniciar(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.sock.bind((self.host, self.puerto))
+        try:
+            self.sock.bind((self.host, self.puerto))
+        except OSError as e:
+            print(f"Error: no se pudo abrir el puerto {self.puerto} — {e}")
+            print(f"  ¿Hay otro proceso usando el puerto {self.puerto}? Ciérralo y reintenta.")
+            return
         self.sock.listen(10)
         print(f"Servidor activo en {self.host}:{self.puerto}  (Ctrl+C para salir)")
         try:

@@ -69,6 +69,7 @@ class Procesador:
         return linea.strip()
 
     def _enviar_privado(self, destino, mensaje):
+        # IMPORTANTE: el destino "monitor" debe coincidir con NOMBRE en monitor.py (línea 23)
         self._enviar_raw(f"/w {destino} {mensaje}")
 
     def _hilo_escucha(self):
@@ -90,10 +91,7 @@ class Procesador:
             self.cola.put(None)
 
     def procesar_texto(self, ruta_archivo):
-        try:
-            from analizador import analizar_archivo
-        except ImportError:
-            from cliente.analizador import analizar_archivo
+        from analizador import analizar_archivo
 
         nodo = os.path.splitext(os.path.basename(ruta_archivo))[0]
         print(f"[{self.nombre}] Analizando '{nodo}'...")
