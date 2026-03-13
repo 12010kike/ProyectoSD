@@ -225,6 +225,17 @@ class Monitor:
                         "nota_midi": int(nota),
                         "intensidad_midi": int(intensidad),
                     })
+                # Resetear el timer de timeout en cada evento recibido:
+                # el timeout solo debe disparar si hay silencio real (procesador caído),
+                # no simplemente porque hayan pasado 60 s desde el inicio de la corrida.
+                with self._lock_analisis:
+                    ejecutado = self._analisis_ejecutado
+                if not ejecutado:
+                    if self._timer_timeout:
+                        self._timer_timeout.cancel()
+                    self._timer_timeout = threading.Timer(60.0, self._timeout_cb)
+                    self._timer_timeout.daemon = True
+                    self._timer_timeout.start()
             else:
                 print(f"[monitor] evento_sonado malformado de {remitente}: {mensaje}")
 
