@@ -73,6 +73,37 @@ def _iqr(valores):
     return s[3 * n // 4] - s[n // 4]
 
 
+def _mediana(lst):
+    """Mediana de una lista de valores."""
+    if not lst:
+        return 0.0
+    s = sorted(lst)
+    n = len(s)
+    mid = n // 2
+    return (s[mid - 1] + s[mid]) / 2.0 if n % 2 == 0 else float(s[mid])
+
+
+def _rango(lst):
+    """Rango (max - min) de una lista de valores."""
+    if not lst:
+        return 0.0
+    return max(lst) - min(lst)
+
+
+def _pearson(xs, ys):
+    """Coeficiente de correlación de Pearson entre dos listas."""
+    n = len(xs)
+    if n < 2:
+        return 0.0
+    mx = _avg(xs)
+    my = _avg(ys)
+    num = sum((x - mx) * (y - my) for x, y in zip(xs, ys))
+    den = math.sqrt(
+        sum((x - mx) ** 2 for x in xs) * sum((y - my) ** 2 for y in ys)
+    )
+    return num / den if den != 0 else 0.0
+
+
 def _contorno(valores):
     """
     Contorno melódico: (subidas, bajadas, repetidas) como porcentajes.
@@ -257,8 +288,11 @@ class Monitor:
             nota_avg, nota_std = _avg(notas), _std(notas)
             int_avg, int_std = _avg(ints), _std(ints)
 
-            ent   = _entropia(notas)
-            iqr   = _iqr(notas)
+            ent     = _entropia(notas)
+            iqr     = _iqr(notas)
+            mediana = _mediana(notas)
+            rango   = _rango(notas)
+            corr    = _pearson(notas, ints)
             pct_s, pct_b, pct_i = _contorno(notas)
 
             gm = instrs.get(nodo, 0)
@@ -266,6 +300,7 @@ class Monitor:
                 "nota_avg": nota_avg, "nota_std": nota_std,
                 "int_avg": int_avg,   "int_std": int_std,
                 "entropia": ent,      "iqr": iqr,
+                "mediana": mediana,   "rango": rango,   "corr": corr,
                 "pct_sube": pct_s,    "pct_baja": pct_b, "pct_igual": pct_i,
                 "gm": gm,             "n_eventos": len(evs),
             }
@@ -278,14 +313,16 @@ class Monitor:
         lineas.append("")
         lineas.append("=== MÉTRICAS AVANZADAS ===")
         enc_av = (
-            f"{'Obra':<18}| {'Entropía(bits)':>14} | {'IQR notas':>9} "
+            f"{'Obra':<18}| {'Mediana':>7} | {'Rango':>5} | {'IQR':>5} "
+            f"| {'Correlación':>11} | {'Entropía(bits)':>14} "
             f"| {'Subidas%':>8} | {'Bajadas%':>8} | {'Repetidas%':>10} | {'N eventos':>9}"
         )
         lineas.append(enc_av)
         lineas.append("-" * len(enc_av))
         for nodo, s in sorted(stats.items()):
             lineas.append(
-                f"{nodo:<18}| {s['entropia']:>14.3f} | {s['iqr']:>9.1f} "
+                f"{nodo:<18}| {s['mediana']:>7.1f} | {s['rango']:>5.0f} | {s['iqr']:>5.0f} "
+                f"| {s['corr']:>11.3f} | {s['entropia']:>14.3f} "
                 f"| {s['pct_sube']:>7.1f}% | {s['pct_baja']:>7.1f}% "
                 f"| {s['pct_igual']:>9.1f}% | {s['n_eventos']:>9}"
             )
@@ -299,13 +336,34 @@ class Monitor:
                 mayor, menor = n1, n0
             ent_mayor = "mayor" if stats[mayor]["entropia"] >= stats[menor]["entropia"] else "menor"
 
+            corr_mayor = stats[mayor]["corr"]
+            corr_menor = stats[menor]["corr"]
+            iqr_mayor  = stats[mayor]["iqr"]
+            iqr_menor  = stats[menor]["iqr"]
+
+            def _desc_corr(r):
+                a = abs(r)
+                signo = "positiva" if r >= 0 else "negativa"
+                if a >= 0.7:
+                    fuerza = "fuerte"
+                elif a >= 0.4:
+                    fuerza = "moderada"
+                else:
+                    fuerza = "débil"
+                return f"{fuerza} {signo} (r={r:.3f})"
+
             lineas.append("")
             lineas.append(
-                f"CONCLUSIÓN: '{mayor}' presenta mayor variedad rítmica "
-                f"(std={stats[mayor]['nota_std']:.1f} vs {stats[menor]['nota_std']:.1f}), "
-                f"entropía {ent_mayor} ({stats[mayor]['entropia']:.2f} vs "
-                f"{stats[menor]['entropia']:.2f} bits), "
-                f"IQR={stats[mayor]['iqr']:.0f} vs {stats[menor]['iqr']:.0f}. "
+                f"CONCLUSIÓN: '{mayor}' presenta mayor variedad tonal "
+                f"(std={stats[mayor]['nota_std']:.1f} vs {stats[menor]['nota_std']:.1f}; "
+                f"mediana={stats[mayor]['mediana']:.1f} vs {stats[menor]['mediana']:.1f}; "
+                f"rango={stats[mayor]['rango']:.0f} vs {stats[menor]['rango']:.0f}). "
+                f"Su IQR de notas es {iqr_mayor:.0f} frente a {iqr_menor:.0f} de '{menor}', "
+                f"lo que indica {'mayor' if iqr_mayor >= iqr_menor else 'menor'} dispersión en el rango central. "
+                f"La correlación nota-intensidad es {_desc_corr(corr_mayor)} en '{mayor}' "
+                f"y {_desc_corr(corr_menor)} en '{menor}'. "
+                f"Entropía {ent_mayor} en '{mayor}' "
+                f"({stats[mayor]['entropia']:.2f} vs {stats[menor]['entropia']:.2f} bits). "
                 f"Contorno de '{mayor}': "
                 f"{stats[mayor]['pct_sube']:.0f}% ↑ / "
                 f"{stats[mayor]['pct_baja']:.0f}% ↓ / "
