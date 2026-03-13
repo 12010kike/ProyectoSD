@@ -9,6 +9,7 @@ Uso:
 
 import os
 import queue
+import random
 import re
 import socket
 import sys
@@ -45,8 +46,6 @@ class Procesador:
         self.ruta_textos = os.path.join(base, "texto")
         self.ruta_soundfont = os.path.join(base, "soundfonts", "FluidR3_GM.sf2")
 
-    # ---------------------------------------------------------- conexión
-
     def _conectar(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect((self.host, self.puerto))
@@ -55,8 +54,6 @@ class Procesador:
         if resp != "OK":
             raise ConnectionError(f"Servidor rechazó identificación: {resp}")
         print(f"[{self.nombre}] Conectado al servidor.")
-
-    # ---------------------------------------------------------- E/S
 
     def _enviar_raw(self, mensaje):
         with self.lock_send:
@@ -73,8 +70,6 @@ class Procesador:
 
     def _enviar_privado(self, destino, mensaje):
         self._enviar_raw(f"/w {destino} {mensaje}")
-
-    # ---------------------------------------------------------- hilo escucha
 
     def _hilo_escucha(self):
         buf = self._buffer
@@ -94,8 +89,6 @@ class Procesador:
             print(f"[{self.nombre}] Error en escucha: {e}")
             self.cola.put(None)
 
-    # ---------------------------------------------------------- análisis
-
     def procesar_texto(self, ruta_archivo):
         try:
             from analizador import analizar_archivo
@@ -108,9 +101,7 @@ class Procesador:
         print(f"[{self.nombre}] {len(eventos)} eventos listos.")
         return eventos, nodo
 
-    # ---------------------------------------------------------- reproducción FluidSynth
-
-    def _init_fluidsynth(self):
+    def _init_fluidsynth(self, instrumento=0):
         if sys.platform == "darwin":
             dyld = os.environ.get("DYLD_LIBRARY_PATH", "")
             for brew_lib in ("/opt/homebrew/lib", "/usr/local/lib"):
@@ -132,11 +123,11 @@ class Procesador:
             print(f"[{self.nombre}] No se pudo inicializar FluidSynth.")
             return None
 
-        fluidsynth.set_instrument(1, 0)
+        fluidsynth.set_instrument(1, instrumento)
         return fluidsynth
 
-    def sonar_texto(self, eventos, nodo):
-        fluidsynth = self._init_fluidsynth()
+    def sonar_texto(self, eventos, nodo, instrumento=0):
+        fluidsynth = self._init_fluidsynth(instrumento)
         print(f"[{self.nombre}] Iniciando reproducción de {len(eventos)} eventos...")
 
         for evento in eventos:
@@ -164,20 +155,15 @@ class Procesador:
                 fluidsynth.stop_Note(note_obj, 1)
                 time.sleep(0.3)
             else:
-                # FluidSynth no disponible: pausa simbólica
                 print(f"  [{oracion_num:>4}] nota={nota_raw} intensidad={intensidad_raw} (sin audio)")
                 time.sleep(0.1)
 
-            # Reportar evento al Monitor
             self._enviar_privado(
                 "monitor",
                 f"evento_sonado:{nodo}:{oracion_num}:{nota_raw}:{intensidad_raw}"
             )
 
-        # Exportar archivo .mid
         self._exportar_mid(eventos, nodo)
-
-        # Señal de fin al Monitor
         self._enviar_privado("monitor", f"fin_procesamiento:{nodo}")
         print(f"[{self.nombre}] Procesamiento completo.")
 
@@ -193,8 +179,6 @@ class Procesador:
             track.append(Message("note_off", note=int(e["nota_midi"]), velocity=0, time=240))
         midi.save(ruta_salida)
         print(f"[{self.nombre}] Archivo MIDI exportado → {ruta_salida}")
-
-    # ---------------------------------------------------------- bucle principal
 
     def ejecutar(self):
         self._conectar()
@@ -222,7 +206,14 @@ class Procesador:
             remitente, mensaje = m.group(1), m.group(2)
 
             if mensaje.startswith("config:"):
-                nombre_archivo = mensaje[7:].strip()
+                # config:<archivo>:<gm>  — gm es opcional, default 0
+                partes = mensaje[7:].split(":")
+                nombre_archivo = partes[0].strip()
+                try:
+                    instrumento = int(partes[1]) if len(partes) > 1 else 0
+                except (ValueError, IndexError):
+                    instrumento = 0
+
                 ruta = os.path.join(self.ruta_textos, nombre_archivo)
 
                 if not os.path.isfile(ruta):
@@ -230,11 +221,11 @@ class Procesador:
                     self._enviar_privado("monitor", f"ERROR: archivo '{nombre_archivo}' no encontrado")
                     continue
 
-                print(f"[{self.nombre}] Config de {remitente}: archivo='{nombre_archivo}'")
+                print(f"[{self.nombre}] Config de {remitente}: archivo='{nombre_archivo}' instrumento={instrumento}")
 
                 threading.Thread(
                     target=self._procesar_archivo,
-                    args=(ruta,),
+                    args=(ruta, instrumento),
                     daemon=True,
                 ).start()
 
@@ -247,10 +238,24 @@ class Procesador:
             except Exception:
                 pass
 
-    def _procesar_archivo(self, ruta):
+    def _procesar_archivo(self, ruta, instrumento=0):
+        """
+        Analiza el texto inmediatamente y lanza la reproducción en un hilo
+        daemon separado con jitter aleatorio (0–0.5 s) para simular
+        procesamiento distribuido asíncrono real.
+        """
         try:
             eventos, nodo = self.procesar_texto(ruta)
-            self.sonar_texto(eventos, nodo)
+
+            def _sonar():
+                jitter = random.uniform(0, 0.5)
+                if jitter > 0:
+                    print(f"[{self.nombre}] Jitter de {jitter:.2f}s antes de reproducción...")
+                    time.sleep(jitter)
+                self.sonar_texto(eventos, nodo, instrumento)
+
+            threading.Thread(target=_sonar, daemon=True).start()
+
         except Exception as e:
             print(f"[{self.nombre}] Error al procesar: {e}")
 

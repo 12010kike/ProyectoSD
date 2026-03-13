@@ -1,33 +1,39 @@
 === INICIO DE CORRIDA DISTRIBUIDA ===
-Fecha: 2026-03-04 20:03:35
+Fecha: 2026-03-12 17:51:53
 =====================================
-[20:05:03] evento_sonado | nodo=quijote | oracion=1 | nota=49 | intensidad=114
-[20:05:03] evento_sonado | nodo=mio_cid | oracion=1 | nota=127 | intensidad=95
-[20:05:05] evento_sonado | nodo=quijote | oracion=2 | nota=111 | intensidad=118
-[20:05:05] evento_sonado | nodo=mio_cid | oracion=2 | nota=67 | intensidad=127
-[20:05:08] evento_sonado | nodo=quijote | oracion=3 | nota=15 | intensidad=127
-[20:05:08] evento_sonado | nodo=mio_cid | oracion=3 | nota=85 | intensidad=16
-[20:05:09] evento_sonado | nodo=mio_cid | oracion=4 | nota=6 | intensidad=0
-[20:05:11] evento_sonado | nodo=quijote | oracion=4 | nota=127 | intensidad=13
-[20:05:12] evento_sonado | nodo=mio_cid | oracion=5 | nota=0 | intensidad=32
-[20:05:12] evento_sonado | nodo=mio_cid | oracion=6 | nota=48 | intensidad=0
-[20:05:14] evento_sonado | nodo=quijote | oracion=5 | nota=70 | intensidad=44
-[20:05:15] evento_sonado | nodo=mio_cid | oracion=7 | nota=82 | intensidad=16
-[20:05:17] evento_sonado | nodo=quijote | oracion=6 | nota=90 | intensidad=74
-[20:05:17] evento_sonado | nodo=quijote | oracion=7 | nota=110 | intensidad=0
-[20:05:18] evento_sonado | nodo=mio_cid | oracion=8 | nota=87 | intensidad=127
-[20:05:20] evento_sonado | nodo=quijote | oracion=8 | nota=0 | intensidad=35
-[20:05:20] evento_sonado | nodo=mio_cid | oracion=9 | nota=39 | intensidad=32
-[20:05:23] evento_sonado | nodo=mio_cid | oracion=10 | nota=94 | intensidad=16
-[20:05:24] evento_sonado | nodo=mio_cid | oracion=11 | nota=97 | intensidad=0
+[17:52:16] evento_sonado | nodo=quijote | oracion=1 | nota=49 | intensidad=114 | instr=Violin
+[17:52:16] evento_sonado | nodo=mio_cid | oracion=1 | nota=127 | intensidad=95 | instr=Flute
+[17:52:19] evento_sonado | nodo=quijote | oracion=2 | nota=111 | intensidad=118 | instr=Violin
+[17:52:19] evento_sonado | nodo=mio_cid | oracion=2 | nota=67 | intensidad=127 | instr=Flute
+[17:52:22] evento_sonado | nodo=mio_cid | oracion=3 | nota=85 | intensidad=16 | instr=Flute
+[17:52:22] evento_sonado | nodo=quijote | oracion=3 | nota=15 | intensidad=127 | instr=Violin
+[17:52:22] evento_sonado | nodo=mio_cid | oracion=4 | nota=6 | intensidad=0 | instr=Flute
+[17:52:24] evento_sonado | nodo=quijote | oracion=4 | nota=127 | intensidad=13 | instr=Violin
+[17:52:25] evento_sonado | nodo=mio_cid | oracion=5 | nota=0 | intensidad=32 | instr=Flute
+[17:52:25] evento_sonado | nodo=mio_cid | oracion=6 | nota=48 | intensidad=0 | instr=Flute
+[17:52:27] evento_sonado | nodo=quijote | oracion=5 | nota=70 | intensidad=44 | instr=Violin
+[17:52:28] evento_sonado | nodo=mio_cid | oracion=7 | nota=82 | intensidad=16 | instr=Flute
+[17:52:30] evento_sonado | nodo=quijote | oracion=6 | nota=90 | intensidad=74 | instr=Violin
+[17:52:30] evento_sonado | nodo=quijote | oracion=7 | nota=110 | intensidad=0 | instr=Violin
+[17:52:31] evento_sonado | nodo=mio_cid | oracion=8 | nota=87 | intensidad=127 | instr=Flute
+[17:52:33] evento_sonado | nodo=quijote | oracion=8 | nota=0 | intensidad=35 | instr=Violin
+[17:52:34] evento_sonado | nodo=mio_cid | oracion=9 | nota=39 | intensidad=32 | instr=Flute
+[17:52:37] evento_sonado | nodo=mio_cid | oracion=10 | nota=94 | intensidad=16 | instr=Flute
+[17:52:37] evento_sonado | nodo=mio_cid | oracion=11 | nota=97 | intensidad=0 | instr=Flute
 
 === ANÁLISIS COMPARATIVO DE FIRMA SONORA ===
 Obra              | nota_midi avg | nota_midi std | intensidad avg | intensidad std
 -----------------------------------------------------------------------------------
-mio_cid           |          66.5 |          37.6 |           41.9 |           47.5
-quijote           |          71.5 |          43.7 |           65.6 |           46.6
+mio_cid           |          66.5 |          37.6 |           41.9 |           47.5  [Flute]
+quijote           |          71.5 |          43.7 |           65.6 |           46.6  [Violin]
 
-CONCLUSIÓN: Quijote presenta mayor variedad rítmica (std=43.7 vs 37.6), consistente con su estructura literaria. Mio_cid muestra cadencia más uniforme (std=37.6), propio de su género.
+=== MÉTRICAS AVANZADAS ===
+Obra              | Entropía(bits) | IQR notas | Subidas% | Bajadas% | Repetidas% | N eventos
+---------------------------------------------------------------------------------------------
+mio_cid           |          3.459 |      55.0 |    60.0% |    40.0% |       0.0% |        11
+quijote           |          3.000 |      62.0 |    57.1% |    42.9% |       0.0% |         8
+
+CONCLUSIÓN: 'quijote' presenta mayor variedad rítmica (std=43.7 vs 37.6), entropía menor (3.00 vs 3.46 bits), IQR=62 vs 55. Contorno de 'quijote': 57% ↑ / 43% ↓ / 0% =. 'mio_cid' muestra cadencia más uniforme (std=37.6), propio de su género.
 =====================================
-Fin: 2026-03-04 20:05:24
+Fin: 2026-03-12 17:52:37
 === FIN DE CORRIDA DISTRIBUIDA ===

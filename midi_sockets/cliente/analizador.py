@@ -1,11 +1,4 @@
-"""
-Módulo de análisis literario para sonorización MIDI.
-
-Métricas combinadas para valor_bruto:
-  métrica base   = promedio(len(p) × suma_ascii(p))
-  densidad léxica = (palabras_únicas / total_palabras) × promedio_longitud
-  valor_bruto    = métrica_base × (1 + densidad_léxica)
-"""
+"""Análisis literario: convierte texto en eventos MIDI (nota e intensidad por oración)."""
 
 import os
 import re
@@ -32,14 +25,12 @@ def suma_ascii(palabra):
 
 
 def _metrica_base(palabras):
-    """promedio(len(p) × suma_ascii(p))"""
     if not palabras:
         return 0.0
     return sum(len(p) * suma_ascii(p) for p in palabras) / len(palabras)
 
 
 def _densidad_lexica(palabras):
-    """(palabras_únicas / total_palabras) × promedio_longitud"""
     if not palabras:
         return 0.0
     total = len(palabras)
@@ -49,7 +40,6 @@ def _densidad_lexica(palabras):
 
 
 def cuantificar_oracion(oracion):
-    """Combina métrica base y densidad léxica en el valor bruto final."""
     palabras = tokenizar_palabras(oracion)
     if not palabras:
         return 0.0
