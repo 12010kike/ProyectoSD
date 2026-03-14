@@ -12,7 +12,7 @@ Sistema distribuido en Python que analiza métricas lingüísticas de textos lit
    - `densidad_lexica = (palabras_unicas / total) × promedio_longitud`
    - `valor_bruto = metrica_base × (1 + densidad_lexica)`
 5. Los valores se normalizan a `[0, 127]` para obtener `nota_midi` y `intensidad_midi`.
-6. El monitor genera un análisis comparativo (media, std, entropía Shannon, IQR, contorno melódico) al finalizar.
+6. El monitor genera el análisis comparativo al finalizar todos los procesadores, usando `avg` y `std` de notas e intensidades por obra.
 7. Cada procesador exporta un archivo `.mid` en `salida/`.
 
 ## Instalación de dependencias Python
@@ -86,7 +86,7 @@ config(quijote.txt mio_cid.txt, procesador1 procesador2, 40 73)
 
 Instrumentos GM disponibles: `0` Piano | `11` Vibraphone | `19` Organ | `24` Guitar | `40` Violin | `42` Cello | `56` Trumpet | `73` Flute
 
-Escribe `analizar` para forzar el análisis comparativo, o `salir` para cerrar el monitor.
+Escribe `salir` para cerrar el monitor.
 
 ## Artefactos generados
 

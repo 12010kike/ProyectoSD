@@ -173,7 +173,7 @@ class Procesador:
         track = MidiTrack()
         midi.tracks.append(track)
         for e in eventos:
-            track.append(Message("note_on",  note=int(e["nota_midi"]), velocity=max(1, int(e["intensidad_midi"])), time=0))
+            track.append(Message("note_on", note=int(e["nota_midi"]), velocity=int(e["intensidad_midi"]), time=0))
             track.append(Message("note_off", note=int(e["nota_midi"]), velocity=0, time=240))
         midi.save(ruta_salida)
         print(f"[{self.nombre}] Archivo MIDI exportado → {ruta_salida}")
@@ -217,6 +217,10 @@ class Procesador:
                 if not os.path.isfile(ruta):
                     print(f"[{self.nombre}] Archivo no encontrado: {ruta}")
                     self._enviar_privado("monitor", f"ERROR: archivo '{nombre_archivo}' no encontrado")
+                    self._enviar_privado(
+                        "monitor",
+                        f"fin_procesamiento:{os.path.splitext(nombre_archivo)[0]}"
+                    )
                     continue
 
                 print(f"[{self.nombre}] Config de {remitente}: archivo='{nombre_archivo}' instrumento={instrumento}")
@@ -242,6 +246,7 @@ class Procesador:
         daemon separado con jitter aleatorio (0–0.5 s) para simular
         procesamiento distribuido asíncrono real.
         """
+        nodo = os.path.splitext(os.path.basename(ruta))[0]
         try:
             eventos, nodo = self.procesar_texto(ruta)
 
@@ -256,6 +261,7 @@ class Procesador:
 
         except Exception as e:
             print(f"[{self.nombre}] Error al procesar: {e}")
+            self._enviar_privado("monitor", f"fin_procesamiento:{nodo}")
 
 
 def main():

@@ -51,14 +51,11 @@ def cuantificar_oracion(oracion):
 def normalizar_lista(valores):
     if not valores:
         return []
-    minimo = min(valores)
-    maximo = max(valores)
-    if maximo == minimo:
-        return [64 for _ in valores]
-    return [
-        max(0, min(127, int(round(((v - minimo) / (maximo - minimo)) * 127))))
-        for v in valores
-    ]
+    x_min = min(valores)
+    x_max = max(valores)
+    if x_max == x_min:
+        return [0 for _ in valores]
+    return [max(0, min(127, int(round(((x - x_min) / (x_max - x_min)) * 127)))) for x in valores]
 
 
 def analizar_texto(texto, nombre_nodo):

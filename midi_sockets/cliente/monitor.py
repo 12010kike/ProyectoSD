@@ -15,7 +15,6 @@ import re
 import socket
 import threading
 import time
-from collections import Counter
 
 HOST = "127.0.0.1"
 PUERTO = 5000
@@ -55,70 +54,6 @@ def _std(lst):
     return math.sqrt(sum((x - m) ** 2 for x in lst) / len(lst))
 
 
-def _entropia(valores):
-    """Entropía de Shannon en bits sobre la distribución de valores."""
-    n = len(valores)
-    if n == 0:
-        return 0.0
-    counts = Counter(valores)
-    return -sum((c / n) * math.log2(c / n) for c in counts.values() if c > 0)
-
-
-def _iqr(valores):
-    """Rango intercuartílico (P75 - P25)."""
-    if len(valores) < 4:
-        return 0.0
-    s = sorted(valores)
-    n = len(s)
-    return s[3 * n // 4] - s[n // 4]
-
-
-def _mediana(lst):
-    """Mediana de una lista de valores."""
-    if not lst:
-        return 0.0
-    s = sorted(lst)
-    n = len(s)
-    mid = n // 2
-    return (s[mid - 1] + s[mid]) / 2.0 if n % 2 == 0 else float(s[mid])
-
-
-def _rango(lst):
-    """Rango (max - min) de una lista de valores."""
-    if not lst:
-        return 0.0
-    return max(lst) - min(lst)
-
-
-def _pearson(xs, ys):
-    """Coeficiente de correlación de Pearson entre dos listas."""
-    n = len(xs)
-    if n < 2:
-        return 0.0
-    mx = _avg(xs)
-    my = _avg(ys)
-    num = sum((x - mx) * (y - my) for x, y in zip(xs, ys))
-    den = math.sqrt(
-        sum((x - mx) ** 2 for x in xs) * sum((y - my) ** 2 for y in ys)
-    )
-    return num / den if den != 0 else 0.0
-
-
-def _contorno(valores):
-    """
-    Contorno melódico: (subidas, bajadas, repetidas) como porcentajes.
-    Retorna tupla (pct_sube, pct_baja, pct_igual).
-    """
-    if len(valores) < 2:
-        return (0.0, 0.0, 0.0)
-    pares = list(zip(valores, valores[1:]))
-    total = len(pares)
-    sube  = sum(1 for a, b in pares if b > a)
-    baja  = sum(1 for a, b in pares if b < a)
-    igual = sum(1 for a, b in pares if b == a)
-    return (sube / total * 100, baja / total * 100, igual / total * 100)
-
-
 class Monitor:
     def __init__(self, host=HOST, puerto=PUERTO):
         self.host = host
@@ -134,7 +69,6 @@ class Monitor:
         self._analisis_ejecutado = False
         self._lock_analisis = threading.Lock()
         self.instrumento_por_nodo = {}  # {nodo: gm}  — populado al enviar config
-        self._timer_timeout = None
 
         base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.ruta_log = os.path.join(base, "salida", "log_corrida.txt")
@@ -208,6 +142,14 @@ class Monitor:
             partes = mensaje.split(":")
             if len(partes) == 5:
                 _, nodo, oracion, nota, intensidad = partes
+                with self._lock_analisis:
+                    analisis_cerrado = self._analisis_ejecutado
+                if analisis_cerrado:
+                    print(
+                        f"[monitor] Evento tardío ignorado de '{nodo}' "
+                        f"(oracion={oracion}, nota={nota}, intensidad={intensidad})"
+                    )
+                    return
                 ts = time.strftime("%H:%M:%S")
                 with self.lock_datos:
                     gm = self.instrumento_por_nodo.get(nodo, 0)
@@ -225,24 +167,15 @@ class Monitor:
                         "nota_midi": int(nota),
                         "intensidad_midi": int(intensidad),
                     })
-                # Resetear el timer de timeout en cada evento recibido:
-                # el timeout solo debe disparar si hay silencio real (procesador caído),
-                # no simplemente porque hayan pasado 60 s desde el inicio de la corrida.
-                with self._lock_analisis:
-                    ejecutado = self._analisis_ejecutado
-                if not ejecutado:
-                    if self._timer_timeout:
-                        self._timer_timeout.cancel()
-                    self._timer_timeout = threading.Timer(60.0, self._timeout_cb)
-                    self._timer_timeout.daemon = True
-                    self._timer_timeout.start()
             else:
                 print(f"[monitor] evento_sonado malformado de {remitente}: {mensaje}")
 
         elif mensaje.startswith("fin_procesamiento:"):
             nodo = mensaje.split(":", 1)[1].strip()
             ts = time.strftime("%H:%M:%S")
-            print(f"[{ts}] [monitor] Procesador '{remitente}' terminó (nodo={nodo})")
+            linea_fin = f"[{ts}] fin_procesamiento | procesador={remitente} | nodo={nodo}"
+            print(linea_fin)
+            self._escribir_log(linea_fin)
             with self.lock_datos:
                 self.nodos_completados.add(nodo)
                 completados = set(self.nodos_completados)
@@ -256,25 +189,10 @@ class Monitor:
                         ejecutar = True
 
             if ejecutar:
-                if self._timer_timeout:
-                    self._timer_timeout.cancel()
                 self._analisis_comparativo()
 
         else:
             print(f"[monitor] DE {remitente}: {mensaje}")
-
-    def _timeout_cb(self):
-        """Fuerza el análisis comparativo si transcurren 60 s sin fin_procesamiento de todos los nodos."""
-        ejecutar = False
-        with self._lock_analisis:
-            if not self._analisis_ejecutado:
-                self._analisis_ejecutado = True
-                ejecutar = True
-        if ejecutar:
-            with self.lock_datos:
-                pendientes = self.nodos_esperados - self.nodos_completados
-            print(f"[monitor] Timeout 60 s: forzando análisis. Nodos sin respuesta: {pendientes}")
-            self._analisis_comparativo()
 
     def _analisis_comparativo(self):
         with self.lock_datos:
@@ -282,7 +200,8 @@ class Monitor:
             instrs = dict(self.instrumento_por_nodo)
 
         lineas = []
-        lineas.append("\n=== ANÁLISIS COMPARATIVO DE FIRMA SONORA ===")
+        lineas.append("")
+        lineas.append("=== ANÁLISIS COMPARATIVO ===")
         encabezado = (
             f"{'Obra':<18}| {'nota_midi avg':>13} | {'nota_midi std':>13} "
             f"| {'intensidad avg':>14} | {'intensidad std':>14}"
@@ -291,29 +210,20 @@ class Monitor:
         lineas.append("-" * len(encabezado))
 
         stats = {}
-        for nodo, evs in sorted(snapshot.items()):
-            if not evs:
-                continue
+        for nodo in sorted(self.nodos_esperados):
+            evs = snapshot.get(nodo, [])
             notas = [e["nota_midi"] for e in evs]
             ints = [e["intensidad_midi"] for e in evs]
             nota_avg, nota_std = _avg(notas), _std(notas)
             int_avg, int_std = _avg(ints), _std(ints)
-
-            ent     = _entropia(notas)
-            iqr     = _iqr(notas)
-            mediana = _mediana(notas)
-            rango   = _rango(notas)
-            corr    = _pearson(notas, ints)
-            pct_s, pct_b, pct_i = _contorno(notas)
-
             gm = instrs.get(nodo, 0)
             stats[nodo] = {
-                "nota_avg": nota_avg, "nota_std": nota_std,
-                "int_avg": int_avg,   "int_std": int_std,
-                "entropia": ent,      "iqr": iqr,
-                "mediana": mediana,   "rango": rango,   "corr": corr,
-                "pct_sube": pct_s,    "pct_baja": pct_b, "pct_igual": pct_i,
-                "gm": gm,             "n_eventos": len(evs),
+                "nota_avg": nota_avg,
+                "nota_std": nota_std,
+                "int_avg": int_avg,
+                "int_std": int_std,
+                "gm": gm,
+                "n_eventos": len(evs),
             }
             instr_nombre = _nombre_gm(gm)
             lineas.append(
@@ -321,67 +231,34 @@ class Monitor:
                 f"| {int_avg:>14.1f} | {int_std:>14.1f}  [{instr_nombre}]"
             )
 
-        lineas.append("")
-        lineas.append("=== MÉTRICAS AVANZADAS ===")
-        enc_av = (
-            f"{'Obra':<18}| {'Mediana':>7} | {'Rango':>5} | {'IQR':>5} "
-            f"| {'Correlación':>11} | {'Entropía(bits)':>14} "
-            f"| {'Subidas%':>8} | {'Bajadas%':>8} | {'Repetidas%':>10} | {'N eventos':>9}"
-        )
-        lineas.append(enc_av)
-        lineas.append("-" * len(enc_av))
-        for nodo, s in sorted(stats.items()):
-            lineas.append(
-                f"{nodo:<18}| {s['mediana']:>7.1f} | {s['rango']:>5.0f} | {s['iqr']:>5.0f} "
-                f"| {s['corr']:>11.3f} | {s['entropia']:>14.3f} "
-                f"| {s['pct_sube']:>7.1f}% | {s['pct_baja']:>7.1f}% "
-                f"| {s['pct_igual']:>9.1f}% | {s['n_eventos']:>9}"
-            )
-
         if len(stats) == 2:
             nodos = list(stats.keys())
             n0, n1 = nodos[0], nodos[1]
-            if stats[n0]["nota_std"] >= stats[n1]["nota_std"]:
+            score0 = (stats[n0]["int_std"], stats[n0]["nota_std"])
+            score1 = (stats[n1]["int_std"], stats[n1]["nota_std"])
+            if score0 >= score1:
                 mayor, menor = n0, n1
             else:
                 mayor, menor = n1, n0
-            ent_mayor = "mayor" if stats[mayor]["entropia"] >= stats[menor]["entropia"] else "menor"
-
-            corr_mayor = stats[mayor]["corr"]
-            corr_menor = stats[menor]["corr"]
-            iqr_mayor  = stats[mayor]["iqr"]
-            iqr_menor  = stats[menor]["iqr"]
-
-            def _desc_corr(r):
-                a = abs(r)
-                signo = "positiva" if r >= 0 else "negativa"
-                if a >= 0.7:
-                    fuerza = "fuerte"
-                elif a >= 0.4:
-                    fuerza = "moderada"
-                else:
-                    fuerza = "débil"
-                return f"{fuerza} {signo} (r={r:.3f})"
-
             lineas.append("")
-            lineas.append(
-                f"CONCLUSIÓN: '{mayor}' presenta mayor variedad tonal "
-                f"(std={stats[mayor]['nota_std']:.1f} vs {stats[menor]['nota_std']:.1f}; "
-                f"mediana={stats[mayor]['mediana']:.1f} vs {stats[menor]['mediana']:.1f}; "
-                f"rango={stats[mayor]['rango']:.0f} vs {stats[menor]['rango']:.0f}). "
-                f"Su IQR de notas es {iqr_mayor:.0f} frente a {iqr_menor:.0f} de '{menor}', "
-                f"lo que indica {'mayor' if iqr_mayor >= iqr_menor else 'menor'} dispersión en el rango central. "
-                f"La correlación nota-intensidad es {_desc_corr(corr_mayor)} en '{mayor}' "
-                f"y {_desc_corr(corr_menor)} en '{menor}'. "
-                f"Entropía {ent_mayor} en '{mayor}' "
-                f"({stats[mayor]['entropia']:.2f} vs {stats[menor]['entropia']:.2f} bits). "
-                f"Contorno de '{mayor}': "
-                f"{stats[mayor]['pct_sube']:.0f}% ↑ / "
-                f"{stats[mayor]['pct_baja']:.0f}% ↓ / "
-                f"{stats[mayor]['pct_igual']:.0f}% =. "
-                f"'{menor}' muestra cadencia más uniforme "
-                f"(std={stats[menor]['nota_std']:.1f}), propio de su género."
+            conclusion = (
+                f"CONCLUSIÓN: '{mayor}' presenta mayor variedad rítmica porque su "
+                f"desviación estándar de intensidades es mayor "
+                f"({stats[mayor]['int_std']:.1f} vs {stats[menor]['int_std']:.1f}). "
             )
+            if stats[mayor]["nota_std"] >= stats[menor]["nota_std"]:
+                conclusion += (
+                    f"Además, sus notas también muestran mayor dispersión "
+                    f"({stats[mayor]['nota_std']:.1f} vs {stats[menor]['nota_std']:.1f}), "
+                    f"por lo que el sistema registra una ejecución menos uniforme."
+                )
+            else:
+                conclusion += (
+                    f"En cambio, la mayor dispersión de notas aparece en '{menor}' "
+                    f"({stats[menor]['nota_std']:.1f} vs {stats[mayor]['nota_std']:.1f}), "
+                    f"así que la diferencia rítmica se explica principalmente por la intensidad."
+                )
+            lineas.append(conclusion)
 
         texto_analisis = "\n".join(lineas)
         print(texto_analisis)
@@ -392,7 +269,7 @@ class Monitor:
                 f.write(texto_analisis + "\n")
                 f.write("=====================================\n")
                 f.write(f"Fin: {ts}\n")
-                f.write("=== FIN DE CORRIDA DISTRIBUIDA ===\n")
+                f.write("=== FIN ===\n")
             print(f"\n[monitor] Análisis guardado en {self.ruta_log}")
         except Exception as e:
             print(f"[monitor] No se pudo guardar el log: {e}")
@@ -448,7 +325,7 @@ class Monitor:
         print("[monitor] Esperando comando de configuración.")
         print("  Formato: config(quijote.txt mio_cid.txt, procesador1 procesador2)")
         print("  Con instrumento: config(quijote.txt mio_cid.txt, procesador1 procesador2, 40 73)")
-        print("  Escribe 'analizar' para forzar análisis, 'salir' para terminar.\n")
+        print("  Escribe 'salir' para terminar.\n")
 
         while True:
             try:
@@ -459,10 +336,6 @@ class Monitor:
 
             if entrada.lower() in ("salir", "exit", "quit"):
                 break
-
-            if entrada.lower() == "analizar":
-                self._analisis_comparativo()
-                continue
 
             if not entrada:
                 continue
@@ -491,13 +364,12 @@ class Monitor:
                 instr_nombre = _nombre_gm(gm)
                 print(f"[monitor] → /w {procesador} {msg}  ({instr_nombre})")
                 self._enviar_privado(procesador, msg)
+                self._escribir_log(
+                    f"[{time.strftime('%H:%M:%S')}] config_enviada | "
+                    f"procesador={procesador} | archivo={archivo} | instr={instr_nombre}"
+                )
 
             print(f"[monitor] Configuración enviada. Esperando {len(asignaciones)} procesador(es)...\n")
-            if self._timer_timeout:
-                self._timer_timeout.cancel()
-            self._timer_timeout = threading.Timer(60.0, self._timeout_cb)
-            self._timer_timeout.daemon = True
-            self._timer_timeout.start()
 
         if self.sock:
             try:
