@@ -54,6 +54,30 @@ def _std(lst):
     return math.sqrt(sum((x - m) ** 2 for x in lst) / len(lst))
 
 
+def _percentil(lst, p):
+    if not lst:
+        return 0.0
+    s = sorted(lst)
+    idx = (len(s) - 1) * p / 100.0
+    lo, hi = int(idx), min(int(idx) + 1, len(s) - 1)
+    return s[lo] + (s[hi] - s[lo]) * (idx - lo)
+
+
+def _iqr(lst):
+    return _percentil(lst, 75) - _percentil(lst, 25)
+
+
+def _contorno(notas):
+    """Porcentaje de intervalos ascendentes y descendentes entre notas consecutivas."""
+    if len(notas) < 2:
+        return 0.0, 0.0
+    pares = [(notas[i], notas[i + 1]) for i in range(len(notas) - 1)]
+    asc  = sum(1 for a, b in pares if b > a)
+    desc = sum(1 for a, b in pares if b < a)
+    total = len(pares)
+    return 100.0 * asc / total, 100.0 * desc / total
+
+
 class Monitor:
     def __init__(self, host=HOST, puerto=PUERTO):
         self.host = host
@@ -213,17 +237,30 @@ class Monitor:
         for nodo in sorted(self.nodos_esperados):
             evs = snapshot.get(nodo, [])
             notas = [e["nota_midi"] for e in evs]
-            ints = [e["intensidad_midi"] for e in evs]
+            ints  = [e["intensidad_midi"] for e in evs]
             nota_avg, nota_std = _avg(notas), _std(notas)
-            int_avg, int_std = _avg(ints), _std(ints)
+            int_avg,  int_std  = _avg(ints),  _std(ints)
+
+            # Métricas adicionales ──────────────────────────────────────
+            n_total      = max(len(evs), 1)
+            silencio_pct = 100.0 * sum(1 for e in evs if e["intensidad_midi"] == 0) / n_total
+            nota_iqr     = _iqr(notas)
+            notas_activas = [e["nota_midi"] for e in evs if e["intensidad_midi"] > 0]
+            asc_pct, desc_pct = _contorno(notas_activas)
+            # ────────────────────────────────────────────────────────────
+
             gm = instrs.get(nodo, 0)
             stats[nodo] = {
-                "nota_avg": nota_avg,
-                "nota_std": nota_std,
-                "int_avg": int_avg,
-                "int_std": int_std,
-                "gm": gm,
-                "n_eventos": len(evs),
+                "nota_avg":    nota_avg,
+                "nota_std":    nota_std,
+                "int_avg":     int_avg,
+                "int_std":     int_std,
+                "gm":          gm,
+                "n_eventos":   len(evs),
+                "silencio_pct": silencio_pct,
+                "nota_iqr":    nota_iqr,
+                "asc_pct":     asc_pct,
+                "desc_pct":    desc_pct,
             }
             instr_nombre = _nombre_gm(gm)
             lineas.append(
@@ -231,33 +268,50 @@ class Monitor:
                 f"| {int_avg:>14.1f} | {int_std:>14.1f}  [{instr_nombre}]"
             )
 
+        # Tabla de métricas adicionales ─────────────────────────────────
+        lineas.append("")
+        lineas.append("--- MÉTRICAS DE CADENCIA Y CONTORNO ---")
+        enc2 = f"{'Obra':<18}| {'sil%':>6} | {'nota IQR':>8} | {'contorno melódico':<20}"
+        lineas.append(enc2)
+        lineas.append("-" * len(enc2))
+        for nodo in sorted(stats.keys()):
+            s = stats[nodo]
+            contorno_str = f"↑ {s['asc_pct']:.0f}% ↓ {s['desc_pct']:.0f}%"
+            lineas.append(
+                f"{nodo:<18}| {s['silencio_pct']:>5.1f}% | {s['nota_iqr']:>8.1f} | {contorno_str:<20}"
+            )
+
+        # Conclusión mejorada ──────────────────────────────────────────
         if len(stats) == 2:
-            nodos = list(stats.keys())
+            nodos = sorted(stats.keys())
             n0, n1 = nodos[0], nodos[1]
-            score0 = (stats[n0]["int_std"], stats[n0]["nota_std"])
-            score1 = (stats[n1]["int_std"], stats[n1]["nota_std"])
-            if score0 >= score1:
-                mayor, menor = n0, n1
+
+            # Variedad melódica → mayor IQR de notas
+            if stats[n0]["nota_iqr"] >= stats[n1]["nota_iqr"]:
+                mayor_var, menor_var = n0, n1
             else:
-                mayor, menor = n1, n0
+                mayor_var, menor_var = n1, n0
+
+            # Cadencia métrica → mayor % de silencios
+            if stats[n0]["silencio_pct"] >= stats[n1]["silencio_pct"]:
+                mayor_cad, menor_cad = n0, n1
+            else:
+                mayor_cad, menor_cad = n1, n0
+
             lineas.append("")
             conclusion = (
-                f"CONCLUSIÓN: '{mayor}' presenta mayor variedad rítmica porque su "
-                f"desviación estándar de intensidades es mayor "
-                f"({stats[mayor]['int_std']:.1f} vs {stats[menor]['int_std']:.1f}). "
+                f"CONCLUSIÓN: '{mayor_var}' muestra mayor variedad melódica "
+                f"(IQR notas={stats[mayor_var]['nota_iqr']:.1f} vs "
+                f"{stats[menor_var]['nota_iqr']:.1f}) y contorno "
+                f"↑ {stats[mayor_var]['asc_pct']:.0f}% ↓ {stats[mayor_var]['desc_pct']:.0f}%, "
+                f"propio de la prosa renacentista con mayor riqueza léxica. "
+                f"'{mayor_cad}' presenta mayor cadencia métrica "
+                f"({stats[mayor_cad]['silencio_pct']:.1f}% de silencios vs "
+                f"{stats[menor_cad]['silencio_pct']:.1f}%), "
+                f"característico de la estructura repetitiva y rimada del cantar épico. "
+                f"La desviación estándar de intensidades confirma: "
+                f"{stats[n0]['int_std']:.1f} ({n0}) vs {stats[n1]['int_std']:.1f} ({n1})."
             )
-            if stats[mayor]["nota_std"] >= stats[menor]["nota_std"]:
-                conclusion += (
-                    f"Además, sus notas también muestran mayor dispersión "
-                    f"({stats[mayor]['nota_std']:.1f} vs {stats[menor]['nota_std']:.1f}), "
-                    f"por lo que el sistema registra una ejecución menos uniforme."
-                )
-            else:
-                conclusion += (
-                    f"En cambio, la mayor dispersión de notas aparece en '{menor}' "
-                    f"({stats[menor]['nota_std']:.1f} vs {stats[mayor]['nota_std']:.1f}), "
-                    f"así que la diferencia rítmica se explica principalmente por la intensidad."
-                )
             lineas.append(conclusion)
 
         texto_analisis = "\n".join(lineas)

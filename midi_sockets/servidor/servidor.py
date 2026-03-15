@@ -19,7 +19,7 @@ class ServidorMensajeria:
         self.lock = threading.Lock()
         self.sock = None
 
-    # ------------------------------------------------------------------ envío
+    # envío
 
     def _enviar(self, conexion, mensaje):
         try:

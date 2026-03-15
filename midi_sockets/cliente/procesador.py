@@ -16,6 +16,9 @@ import sys
 import threading
 import time
 
+# Garantiza que 'analizador' se encuentre independientemente del directorio de trabajo
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from mido import Message, MidiFile, MidiTrack
 
 HOST = "127.0.0.1"

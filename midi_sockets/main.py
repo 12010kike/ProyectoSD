@@ -136,6 +136,9 @@ def _iniciar_monitor():
     print("  Escribe 'salir' para cerrar el monitor y volver al menú.")
     _hr()
     print()
+    print("  NOTA: Escribe tu comando directamente y pulsa Enter (el prompt puede no verse):")
+    print("  Ejemplo: config(quijote.txt mio_cid.txt, procesador1 procesador2, 40 73)")
+    print()
 
     # stdin=None: el monitor hereda el teclado de esta terminal para input()
     proc = subprocess.Popen(
