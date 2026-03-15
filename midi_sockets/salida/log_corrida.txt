@@ -1,21 +1,166 @@
 === INICIO DE CORRIDA DISTRIBUIDA ===
-Fecha: 2026-03-14 15:08:17
+Fecha: 2026-03-15 19:13:52
 =====================================
-[15:08:38] config_enviada | procesador=procesador1 | archivo=quijote.txt | instr=Piano
-[15:08:38] config_enviada | procesador=procesador2 | archivo=mio_cid.txt | instr=Vibraphone
-[15:08:41] evento_sonado | nodo=quijote | oracion=1 | nota=14 | intensidad=104 | instr=Piano
-[15:08:41] evento_sonado | nodo=mio_cid | oracion=1 | nota=48 | intensidad=114 | instr=Vibraphone
-[15:08:44] evento_sonado | nodo=quijote | oracion=2 | nota=24 | intensidad=108 | instr=Piano
-[15:08:44] evento_sonado | nodo=mio_cid | oracion=2 | nota=35 | intensidad=127 | instr=Vibraphone
-[15:08:47] evento_sonado | nodo=quijote | oracion=3 | nota=21 | intensidad=46 | instr=Piano
-[15:08:47] evento_sonado | nodo=mio_cid | oracion=3 | nota=45 | intensidad=38 | instr=Vibraphone
-[15:08:50] evento_sonado | nodo=quijote | oracion=4 | nota=9 | intensidad=31 | instr=Piano
-[15:08:50] evento_sonado | nodo=mio_cid | oracion=4 | nota=19 | intensidad=25 | instr=Vibraphone
-[15:08:53] evento_sonado | nodo=quijote | oracion=5 | nota=9 | intensidad=23 | instr=Piano
-[15:08:53] evento_sonado | nodo=mio_cid | oracion=5 | nota=12 | intensidad=51 | instr=Vibraphone
-[15:08:55] evento_sonado | nodo=quijote | oracion=6 | nota=20 | intensidad=15 | instr=Piano
-[15:08:56] evento_sonado | nodo=mio_cid | oracion=6 | nota=34 | intensidad=25 | instr=Vibraphone
-[15:08:58] evento_sonado | nodo=quijote | oracion=7 | nota=15 | intensidad=50 | instr=Piano
-[15:08:58] evento_sonado | nodo=mio_cid | oracion=7 | nota=45 | intensidad=38 | instr=Vibraphone
-[15:09:01] evento_sonado | nodo=quijote | oracion=8 | nota=26 | intensidad=15 | instr=Piano
-[15:09:01] evento_sonado | nodo=mio_cid | oracion=8 | nota=25 | intensidad=51 | instr=Vibraphone
+[19:14:29] config_enviada | procesador=procesador1 | archivo=quijote.txt | instr=Violin
+[19:14:29] config_enviada | procesador=procesador2 | archivo=mio_cid.txt | instr=Flute
+[19:14:33] evento_sonado | nodo=quijote | oracion=1 | nota=14 | intensidad=104 | instr=Violin
+[19:14:33] evento_sonado | nodo=mio_cid | oracion=1 | nota=48 | intensidad=114 | instr=Flute
+[19:14:35] evento_sonado | nodo=quijote | oracion=2 | nota=24 | intensidad=108 | instr=Violin
+[19:14:35] evento_sonado | nodo=mio_cid | oracion=2 | nota=35 | intensidad=127 | instr=Flute
+[19:14:38] evento_sonado | nodo=quijote | oracion=3 | nota=21 | intensidad=46 | instr=Violin
+[19:14:38] evento_sonado | nodo=mio_cid | oracion=3 | nota=45 | intensidad=38 | instr=Flute
+[19:14:41] evento_sonado | nodo=quijote | oracion=4 | nota=9 | intensidad=31 | instr=Violin
+[19:14:41] evento_sonado | nodo=mio_cid | oracion=4 | nota=19 | intensidad=25 | instr=Flute
+[19:14:44] evento_sonado | nodo=quijote | oracion=5 | nota=9 | intensidad=23 | instr=Violin
+[19:14:44] evento_sonado | nodo=mio_cid | oracion=5 | nota=12 | intensidad=51 | instr=Flute
+[19:14:47] evento_sonado | nodo=quijote | oracion=6 | nota=20 | intensidad=15 | instr=Violin
+[19:14:47] evento_sonado | nodo=mio_cid | oracion=6 | nota=34 | intensidad=25 | instr=Flute
+[19:14:49] evento_sonado | nodo=quijote | oracion=7 | nota=15 | intensidad=50 | instr=Violin
+[19:14:49] evento_sonado | nodo=mio_cid | oracion=7 | nota=45 | intensidad=38 | instr=Flute
+[19:14:52] evento_sonado | nodo=quijote | oracion=8 | nota=26 | intensidad=15 | instr=Violin
+[19:14:52] evento_sonado | nodo=mio_cid | oracion=8 | nota=25 | intensidad=51 | instr=Flute
+[19:14:55] evento_sonado | nodo=quijote | oracion=9 | nota=16 | intensidad=19 | instr=Violin
+[19:14:55] evento_sonado | nodo=mio_cid | oracion=9 | nota=98 | intensidad=13 | instr=Flute
+[19:14:58] evento_sonado | nodo=mio_cid | oracion=10 | nota=16 | intensidad=25 | instr=Flute
+[19:14:58] evento_sonado | nodo=quijote | oracion=10 | nota=14 | intensidad=8 | instr=Violin
+[19:15:01] evento_sonado | nodo=quijote | oracion=11 | nota=34 | intensidad=15 | instr=Violin
+[19:15:01] evento_sonado | nodo=mio_cid | oracion=11 | nota=54 | intensidad=13 | instr=Flute
+[19:15:01] evento_sonado | nodo=mio_cid | oracion=12 | nota=59 | intensidad=0 | instr=Flute
+[19:15:03] evento_sonado | nodo=quijote | oracion=12 | nota=47 | intensidad=19 | instr=Violin
+[19:15:04] evento_sonado | nodo=mio_cid | oracion=13 | nota=63 | intensidad=25 | instr=Flute
+[19:15:06] evento_sonado | nodo=quijote | oracion=13 | nota=24 | intensidad=4 | instr=Violin
+[19:15:07] evento_sonado | nodo=mio_cid | oracion=14 | nota=26 | intensidad=38 | instr=Flute
+[19:15:09] evento_sonado | nodo=quijote | oracion=14 | nota=5 | intensidad=35 | instr=Violin
+[19:15:10] evento_sonado | nodo=mio_cid | oracion=15 | nota=21 | intensidad=38 | instr=Flute
+[19:15:12] evento_sonado | nodo=quijote | oracion=15 | nota=16 | intensidad=115 | instr=Violin
+[19:15:12] evento_sonado | nodo=mio_cid | oracion=16 | nota=32 | intensidad=38 | instr=Flute
+[19:15:15] evento_sonado | nodo=quijote | oracion=16 | nota=55 | intensidad=4 | instr=Violin
+[19:15:15] evento_sonado | nodo=mio_cid | oracion=17 | nota=42 | intensidad=38 | instr=Flute
+[19:15:18] evento_sonado | nodo=quijote | oracion=17 | nota=24 | intensidad=73 | instr=Violin
+[19:15:18] evento_sonado | nodo=mio_cid | oracion=18 | nota=18 | intensidad=51 | instr=Flute
+[19:15:20] evento_sonado | nodo=quijote | oracion=18 | nota=11 | intensidad=19 | instr=Violin
+[19:15:21] evento_sonado | nodo=mio_cid | oracion=19 | nota=14 | intensidad=64 | instr=Flute
+[19:15:23] evento_sonado | nodo=quijote | oracion=19 | nota=18 | intensidad=42 | instr=Violin
+[19:15:24] evento_sonado | nodo=mio_cid | oracion=20 | nota=104 | intensidad=13 | instr=Flute
+[19:15:26] evento_sonado | nodo=quijote | oracion=20 | nota=32 | intensidad=35 | instr=Violin
+[19:15:26] evento_sonado | nodo=mio_cid | oracion=21 | nota=9 | intensidad=76 | instr=Flute
+[19:15:29] evento_sonado | nodo=quijote | oracion=21 | nota=32 | intensidad=27 | instr=Violin
+[19:15:29] evento_sonado | nodo=mio_cid | oracion=22 | nota=40 | intensidad=38 | instr=Flute
+[19:15:32] evento_sonado | nodo=quijote | oracion=22 | nota=39 | intensidad=42 | instr=Violin
+[19:15:32] evento_sonado | nodo=mio_cid | oracion=23 | nota=12 | intensidad=76 | instr=Flute
+[19:15:34] evento_sonado | nodo=quijote | oracion=23 | nota=15 | intensidad=54 | instr=Violin
+[19:15:35] evento_sonado | nodo=mio_cid | oracion=24 | nota=11 | intensidad=38 | instr=Flute
+[19:15:37] evento_sonado | nodo=quijote | oracion=24 | nota=7 | intensidad=19 | instr=Violin
+[19:15:38] evento_sonado | nodo=mio_cid | oracion=25 | nota=75 | intensidad=13 | instr=Flute
+[19:15:40] evento_sonado | nodo=quijote | oracion=25 | nota=5 | intensidad=62 | instr=Violin
+[19:15:41] evento_sonado | nodo=mio_cid | oracion=26 | nota=10 | intensidad=76 | instr=Flute
+[19:15:43] evento_sonado | nodo=quijote | oracion=26 | nota=25 | intensidad=19 | instr=Violin
+[19:15:43] evento_sonado | nodo=mio_cid | oracion=27 | nota=45 | intensidad=13 | instr=Flute
+[19:15:46] evento_sonado | nodo=quijote | oracion=27 | nota=127 | intensidad=27 | instr=Violin
+[19:15:46] evento_sonado | nodo=mio_cid | oracion=28 | nota=28 | intensidad=51 | instr=Flute
+[19:15:48] evento_sonado | nodo=quijote | oracion=28 | nota=34 | intensidad=46 | instr=Violin
+[19:15:49] evento_sonado | nodo=mio_cid | oracion=29 | nota=20 | intensidad=64 | instr=Flute
+[19:15:51] evento_sonado | nodo=quijote | oracion=29 | nota=12 | intensidad=19 | instr=Violin
+[19:15:52] evento_sonado | nodo=mio_cid | oracion=30 | nota=21 | intensidad=102 | instr=Flute
+[19:15:54] evento_sonado | nodo=quijote | oracion=30 | nota=14 | intensidad=19 | instr=Violin
+[19:15:55] evento_sonado | nodo=mio_cid | oracion=31 | nota=10 | intensidad=38 | instr=Flute
+[19:15:57] evento_sonado | nodo=quijote | oracion=31 | nota=16 | intensidad=31 | instr=Violin
+[19:15:57] evento_sonado | nodo=mio_cid | oracion=32 | nota=37 | intensidad=38 | instr=Flute
+[19:16:00] evento_sonado | nodo=quijote | oracion=32 | nota=29 | intensidad=19 | instr=Violin
+[19:16:00] evento_sonado | nodo=mio_cid | oracion=33 | nota=18 | intensidad=38 | instr=Flute
+[19:16:02] evento_sonado | nodo=quijote | oracion=33 | nota=13 | intensidad=50 | instr=Violin
+[19:16:03] evento_sonado | nodo=mio_cid | oracion=34 | nota=21 | intensidad=51 | instr=Flute
+[19:16:05] evento_sonado | nodo=quijote | oracion=34 | nota=28 | intensidad=62 | instr=Violin
+[19:16:06] evento_sonado | nodo=mio_cid | oracion=35 | nota=10 | intensidad=51 | instr=Flute
+[19:16:08] evento_sonado | nodo=quijote | oracion=35 | nota=14 | intensidad=35 | instr=Violin
+[19:16:09] evento_sonado | nodo=mio_cid | oracion=36 | nota=9 | intensidad=51 | instr=Flute
+[19:16:11] evento_sonado | nodo=quijote | oracion=36 | nota=49 | intensidad=35 | instr=Violin
+[19:16:11] evento_sonado | nodo=quijote | oracion=37 | nota=41 | intensidad=0 | instr=Violin
+[19:16:11] evento_sonado | nodo=mio_cid | oracion=37 | nota=53 | intensidad=25 | instr=Flute
+[19:16:14] evento_sonado | nodo=quijote | oracion=38 | nota=45 | intensidad=27 | instr=Violin
+[19:16:14] evento_sonado | nodo=mio_cid | oracion=38 | nota=11 | intensidad=64 | instr=Flute
+[19:16:17] evento_sonado | nodo=quijote | oracion=39 | nota=26 | intensidad=12 | instr=Violin
+[19:16:17] evento_sonado | nodo=mio_cid | oracion=39 | nota=104 | intensidad=13 | instr=Flute
+[19:16:20] evento_sonado | nodo=quijote | oracion=40 | nota=29 | intensidad=19 | instr=Violin
+[19:16:20] evento_sonado | nodo=mio_cid | oracion=40 | nota=29 | intensidad=38 | instr=Flute
+[19:16:23] evento_sonado | nodo=quijote | oracion=41 | nota=29 | intensidad=31 | instr=Violin
+[19:16:23] evento_sonado | nodo=mio_cid | oracion=41 | nota=35 | intensidad=38 | instr=Flute
+[19:16:25] evento_sonado | nodo=quijote | oracion=42 | nota=19 | intensidad=31 | instr=Violin
+[19:16:25] evento_sonado | nodo=mio_cid | oracion=42 | nota=7 | intensidad=25 | instr=Flute
+[19:16:28] evento_sonado | nodo=quijote | oracion=43 | nota=19 | intensidad=46 | instr=Violin
+[19:16:28] evento_sonado | nodo=mio_cid | oracion=43 | nota=17 | intensidad=51 | instr=Flute
+[19:16:31] evento_sonado | nodo=quijote | oracion=44 | nota=37 | intensidad=4 | instr=Violin
+[19:16:31] evento_sonado | nodo=mio_cid | oracion=44 | nota=21 | intensidad=38 | instr=Flute
+[19:16:34] evento_sonado | nodo=quijote | oracion=45 | nota=11 | intensidad=4 | instr=Violin
+[19:16:34] evento_sonado | nodo=mio_cid | oracion=45 | nota=11 | intensidad=51 | instr=Flute
+[19:16:37] evento_sonado | nodo=quijote | oracion=46 | nota=16 | intensidad=19 | instr=Violin
+[19:16:37] evento_sonado | nodo=mio_cid | oracion=46 | nota=3 | intensidad=76 | instr=Flute
+[19:16:37] evento_sonado | nodo=quijote | oracion=47 | nota=20 | intensidad=0 | instr=Violin
+[19:16:39] evento_sonado | nodo=mio_cid | oracion=47 | nota=46 | intensidad=25 | instr=Flute
+[19:16:40] evento_sonado | nodo=quijote | oracion=48 | nota=21 | intensidad=54 | instr=Violin
+[19:16:42] evento_sonado | nodo=mio_cid | oracion=48 | nota=58 | intensidad=13 | instr=Flute
+[19:16:43] evento_sonado | nodo=quijote | oracion=49 | nota=11 | intensidad=69 | instr=Violin
+[19:16:45] evento_sonado | nodo=mio_cid | oracion=49 | nota=42 | intensidad=13 | instr=Flute
+[19:16:46] evento_sonado | nodo=quijote | oracion=50 | nota=10 | intensidad=31 | instr=Violin
+[19:16:46] evento_sonado | nodo=mio_cid | oracion=50 | nota=71 | intensidad=0 | instr=Flute
+[19:16:48] evento_sonado | nodo=quijote | oracion=51 | nota=18 | intensidad=27 | instr=Violin
+[19:16:48] evento_sonado | nodo=mio_cid | oracion=51 | nota=29 | intensidad=38 | instr=Flute
+[19:16:51] evento_sonado | nodo=quijote | oracion=52 | nota=16 | intensidad=19 | instr=Violin
+[19:16:51] evento_sonado | nodo=mio_cid | oracion=52 | nota=36 | intensidad=25 | instr=Flute
+[19:16:54] evento_sonado | nodo=quijote | oracion=53 | nota=40 | intensidad=23 | instr=Violin
+[19:16:54] evento_sonado | nodo=mio_cid | oracion=53 | nota=24 | intensidad=25 | instr=Flute
+[19:16:57] evento_sonado | nodo=quijote | oracion=54 | nota=19 | intensidad=42 | instr=Violin
+[19:16:57] evento_sonado | nodo=mio_cid | oracion=54 | nota=18 | intensidad=51 | instr=Flute
+[19:17:00] evento_sonado | nodo=quijote | oracion=55 | nota=0 | intensidad=4 | instr=Violin
+[19:17:00] evento_sonado | nodo=mio_cid | oracion=55 | nota=20 | intensidad=51 | instr=Flute
+[19:17:02] evento_sonado | nodo=quijote | oracion=56 | nota=9 | intensidad=104 | instr=Violin
+[19:17:02] evento_sonado | nodo=mio_cid | oracion=56 | nota=22 | intensidad=25 | instr=Flute
+[19:17:05] evento_sonado | nodo=quijote | oracion=57 | nota=20 | intensidad=19 | instr=Violin
+[19:17:05] evento_sonado | nodo=mio_cid | oracion=57 | nota=42 | intensidad=25 | instr=Flute
+[19:17:06] evento_sonado | nodo=mio_cid | oracion=58 | nota=127 | intensidad=0 | instr=Flute
+[19:17:08] evento_sonado | nodo=quijote | oracion=58 | nota=34 | intensidad=31 | instr=Violin
+[19:17:09] evento_sonado | nodo=mio_cid | oracion=59 | nota=0 | intensidad=102 | instr=Flute
+[19:17:11] evento_sonado | nodo=quijote | oracion=59 | nota=39 | intensidad=54 | instr=Violin
+[19:17:11] evento_sonado | nodo=mio_cid | oracion=60 | nota=37 | intensidad=64 | instr=Flute
+[19:17:14] evento_sonado | nodo=quijote | oracion=60 | nota=23 | intensidad=77 | instr=Violin
+[19:17:14] evento_sonado | nodo=mio_cid | oracion=61 | nota=23 | intensidad=64 | instr=Flute
+[19:17:16] evento_sonado | nodo=quijote | oracion=61 | nota=11 | intensidad=69 | instr=Violin
+[19:17:17] evento_sonado | nodo=mio_cid | oracion=62 | nota=90 | intensidad=13 | instr=Flute
+[19:17:19] evento_sonado | nodo=quijote | oracion=62 | nota=20 | intensidad=15 | instr=Violin
+[19:17:20] evento_sonado | nodo=mio_cid | oracion=63 | nota=8 | intensidad=25 | instr=Flute
+[19:17:22] evento_sonado | nodo=quijote | oracion=63 | nota=24 | intensidad=8 | instr=Violin
+[19:17:23] evento_sonado | nodo=mio_cid | oracion=64 | nota=47 | intensidad=38 | instr=Flute
+[19:17:25] evento_sonado | nodo=quijote | oracion=64 | nota=8 | intensidad=8 | instr=Violin
+[19:17:25] evento_sonado | nodo=mio_cid | oracion=65 | nota=74 | intensidad=13 | instr=Flute
+[19:17:28] evento_sonado | nodo=quijote | oracion=65 | nota=25 | intensidad=73 | instr=Violin
+[19:17:28] evento_sonado | nodo=mio_cid | oracion=66 | nota=35 | intensidad=38 | instr=Flute
+[19:17:30] evento_sonado | nodo=quijote | oracion=66 | nota=18 | intensidad=127 | instr=Violin
+[19:17:31] evento_sonado | nodo=mio_cid | oracion=67 | nota=31 | intensidad=51 | instr=Flute
+[19:17:33] evento_sonado | nodo=quijote | oracion=67 | nota=7 | intensidad=12 | instr=Violin
+[19:17:34] evento_sonado | nodo=mio_cid | oracion=68 | nota=30 | intensidad=76 | instr=Flute
+[19:17:36] evento_sonado | nodo=quijote | oracion=68 | nota=13 | intensidad=31 | instr=Violin
+[19:17:37] evento_sonado | nodo=mio_cid | oracion=69 | nota=38 | intensidad=38 | instr=Flute
+[19:17:39] evento_sonado | nodo=quijote | oracion=69 | nota=19 | intensidad=12 | instr=Violin
+[19:17:39] evento_sonado | nodo=mio_cid | oracion=70 | nota=19 | intensidad=51 | instr=Flute
+[19:17:42] evento_sonado | nodo=quijote | oracion=70 | nota=20 | intensidad=112 | instr=Violin
+[19:17:42] fin_procesamiento | procesador=procesador1 | nodo=quijote
+[19:17:42] evento_sonado | nodo=mio_cid | oracion=71 | nota=53 | intensidad=38 | instr=Flute
+[19:17:45] evento_sonado | nodo=mio_cid | oracion=72 | nota=21 | intensidad=51 | instr=Flute
+[19:17:45] fin_procesamiento | procesador=procesador2 | nodo=mio_cid
+
+=== ANÁLISIS COMPARATIVO ===
+Obra              | nota_midi avg | nota_midi std | intensidad avg | intensidad std
+-----------------------------------------------------------------------------------
+mio_cid           |          35.0 |          25.7 |           41.8 |           25.4  [Flute]
+quijote           |          23.0 |          16.9 |           36.6 |           29.8  [Violin]
+
+--- MÉTRICAS DE CADENCIA Y CONTORNO ---
+Obra              |   sil% | nota IQR | contorno melódico   
+------------------------------------------------------------
+mio_cid           |   4.2% |     27.0 | ↑ 47% ↓ 53%         
+quijote           |   2.9% |     14.8 | ↑ 49% ↓ 45%         
+
+CONCLUSIÓN: 'mio_cid' muestra mayor variedad melódica (IQR notas=27.0 vs 14.8) y contorno ↑ 47% ↓ 53%, propio de la prosa renacentista con mayor riqueza léxica. 'mio_cid' presenta mayor cadencia métrica (4.2% de silencios vs 2.9%), característico de la estructura repetitiva y rimada del cantar épico. La desviación estándar de intensidades confirma: 25.4 (mio_cid) vs 29.8 (quijote).
+=====================================
+Fin: 2026-03-15 19:17:45
+=== FIN ===

@@ -299,16 +299,30 @@ class Monitor:
                 mayor_cad, menor_cad = n1, n0
 
             lineas.append("")
+            if "quijote" in mayor_var:
+                desc_var = "propio de la prosa renacentista con mayor riqueza léxica"
+            elif "mio_cid" in mayor_var:
+                desc_var = "reflejo de la mayor dispersión melódica del cantar épico"
+            else:
+                desc_var = "reflejo de la mayor variedad léxica del corpus analizado"
+
+            if "mio_cid" in mayor_cad:
+                desc_cad = "característico de la estructura repetitiva y rimada del cantar épico"
+            elif "quijote" in mayor_cad:
+                desc_cad = "característico de la mayor densidad de puntuación en la prosa renacentista"
+            else:
+                desc_cad = "característico de la mayor densidad de pausas en este corpus"
+
             conclusion = (
                 f"CONCLUSIÓN: '{mayor_var}' muestra mayor variedad melódica "
                 f"(IQR notas={stats[mayor_var]['nota_iqr']:.1f} vs "
                 f"{stats[menor_var]['nota_iqr']:.1f}) y contorno "
                 f"↑ {stats[mayor_var]['asc_pct']:.0f}% ↓ {stats[mayor_var]['desc_pct']:.0f}%, "
-                f"propio de la prosa renacentista con mayor riqueza léxica. "
+                f"{desc_var}. "
                 f"'{mayor_cad}' presenta mayor cadencia métrica "
                 f"({stats[mayor_cad]['silencio_pct']:.1f}% de silencios vs "
                 f"{stats[menor_cad]['silencio_pct']:.1f}%), "
-                f"característico de la estructura repetitiva y rimada del cantar épico. "
+                f"{desc_cad}. "
                 f"La desviación estándar de intensidades confirma: "
                 f"{stats[n0]['int_std']:.1f} ({n0}) vs {stats[n1]['int_std']:.1f} ({n1})."
             )
