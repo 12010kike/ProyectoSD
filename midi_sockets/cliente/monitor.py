@@ -241,14 +241,13 @@ class Monitor:
             nota_avg, nota_std = _avg(notas), _std(notas)
             int_avg,  int_std  = _avg(ints),  _std(ints)
 
-            # Métricas adicionales ──────────────────────────────────────
+            # Métricas adicionales 
             n_total      = max(len(evs), 1)
             silencio_pct = 100.0 * sum(1 for e in evs if e["intensidad_midi"] == 0) / n_total
             nota_iqr     = _iqr(notas)
             notas_activas = [e["nota_midi"] for e in evs if e["intensidad_midi"] > 0]
             asc_pct, desc_pct = _contorno(notas_activas)
-            # ────────────────────────────────────────────────────────────
-
+            
             gm = instrs.get(nodo, 0)
             stats[nodo] = {
                 "nota_avg":    nota_avg,
@@ -268,7 +267,7 @@ class Monitor:
                 f"| {int_avg:>14.1f} | {int_std:>14.1f}  [{instr_nombre}]"
             )
 
-        # Tabla de métricas adicionales ─────────────────────────────────
+        # Tabla de métricas adicionales 
         lineas.append("")
         lineas.append("--- MÉTRICAS DE CADENCIA Y CONTORNO ---")
         enc2 = f"{'Obra':<18}| {'sil%':>6} | {'nota IQR':>8} | {'contorno melódico':<20}"
@@ -281,7 +280,7 @@ class Monitor:
                 f"{nodo:<18}| {s['silencio_pct']:>5.1f}% | {s['nota_iqr']:>8.1f} | {contorno_str:<20}"
             )
 
-        # Conclusión mejorada ──────────────────────────────────────────
+        # Conclusión mejorada 
         if len(stats) == 2:
             nodos = sorted(stats.keys())
             n0, n1 = nodos[0], nodos[1]

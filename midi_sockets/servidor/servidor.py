@@ -42,7 +42,7 @@ class ServidorMensajeria:
             return
         self._enviar(conn_dest, f"DE {remitente}: {mensaje}")
 
-    # --------------------------------------------------------- hilo por cliente
+    # hilo por cliente
 
     def _atender_cliente(self, conexion, direccion):
         nombre = None
@@ -112,7 +112,7 @@ class ServidorMensajeria:
             except Exception:
                 pass
 
-    # --------------------------------------------------------------- arranque
+    #  arranque
 
     def iniciar(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
